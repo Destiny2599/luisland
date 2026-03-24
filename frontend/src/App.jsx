@@ -1,53 +1,64 @@
 import { useState, useEffect, useRef } from "react";
-import { BrowserRouter, Routes, Route, Link, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Link, useLocation, useNavigate } from "react-router-dom";
 import "./App.css";
-import Test1 from "./pages/Test1.jsx";
-import Test2 from "./pages/Test2.jsx";
-import SobreMi from "./pages/SobreMi.jsx";
-
+import { AuthProvider, useAuth } from "./context/AuthContext";
+import PrivateRoute from "./context/PrivateRoute";
+import Test1    from "./pages/Test1.jsx";
+import SobreMi  from "./pages/SobreMi.jsx";
+import Login    from "./pages/Login.jsx";
+ 
 const NAV_ITEMS = [
   {
     label: "Información",
     items: [
-      { label: "Sobre mí", to: "/sobre-mi" },
-      { label: "Opción 2", to: "/" },
-      { label: "Opción 3", to: "/" },
-      { label: "Opción 4", to: "/" },
+      { label: "Sobre mí", to: "/sobre-mi", roles: null },
+      { label: "Opción 2", to: "/",         roles: null },
+      { label: "Opción 3", to: "/",         roles: null },
+      { label: "Opción 4", to: "/",         roles: null },
     ],
   },
   {
     label: "Herramientas",
     items: [
-      { label: "Opción 1", to: "/" },
-      { label: "Opción 2", to: "/" },
-      { label: "Opción 3", to: "/" },
-      { label: "Opción 4", to: "/" },
+      { label: "Opción 1", to: "/", roles: ["ADMIN", "DEVELOPER"] },
+      { label: "Opción 2", to: "/", roles: ["ADMIN", "DEVELOPER"] },
+      { label: "Opción 3", to: "/", roles: ["ADMIN", "DEVELOPER"] },
+      { label: "Opción 4", to: "/", roles: ["ADMIN", "DEVELOPER"] },
     ],
   },
   {
     label: "Experimentos",
     items: [
-      { label: "Test 1",   to: "/test1" },
-      { label: "Test 2",    to: "/test2" },
-      { label: "Opción 3", to: "/" },
-      { label: "Opción 4", to: "/" },
+      { label: "Test 1",   to: "/test1", roles: ["ADMIN", "DEVELOPER", "VISITANTE"] },
+      { label: "Opción 2", to: "/",      roles: ["ADMIN", "DEVELOPER"] },
+      { label: "Opción 3", to: "/",      roles: ["ADMIN", "DEVELOPER"] },
+      { label: "Opción 4", to: "/",      roles: ["ADMIN", "DEVELOPER"] },
     ],
   },
 ];
-
+ 
 function DropdownMenu({ item, isOpen, onToggle, onClose }) {
+  const { usuario } = useAuth();
   const ref = useRef(null);
-
+ 
+  // Filtrar opciones según rol del usuario
+  const opcionesFiltradas = item.items.filter(opt => {
+    if (!opt.roles) return true; // sin restricción
+    if (!usuario)   return false; // no logueado
+    return opt.roles.includes(usuario.rol);
+  });
+ 
+  // Si no hay opciones visibles, no mostrar el menú
+  if (opcionesFiltradas.length === 0) return null;
+ 
   useEffect(() => {
     function handleClickOutside(e) {
-      if (ref.current && !ref.current.contains(e.target)) {
-        onClose();
-      }
+      if (ref.current && !ref.current.contains(e.target)) onClose();
     }
     if (isOpen) document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen, onClose]);
-
+ 
   return (
     <div className="ll-nav-item" ref={ref}>
       <button
@@ -58,10 +69,10 @@ function DropdownMenu({ item, isOpen, onToggle, onClose }) {
         {item.label}
         <span className={`ll-chevron ${isOpen ? "open" : ""}`}>›</span>
       </button>
-
+ 
       <div className={`ll-dropdown ${isOpen ? "visible" : ""}`}>
         <div className="ll-dropdown-inner">
-          {item.items.map((opt, i) => (
+          {opcionesFiltradas.map((opt, i) => (
             <Link
               key={i}
               to={opt.to}
@@ -77,15 +88,75 @@ function DropdownMenu({ item, isOpen, onToggle, onClose }) {
     </div>
   );
 }
-
+ 
+function UserMenu() {
+  const { usuario, logout } = useAuth();
+  const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+ 
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+    }
+    if (open) document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [open]);
+ 
+  if (!usuario) {
+    return (
+      <Link to="/login" className="ll-nav-btn">
+        Iniciar sesión
+      </Link>
+    );
+  }
+ 
+  return (
+    <div className="ll-nav-item" ref={ref}>
+      <button
+        className={`ll-nav-btn ll-nav-btn--user ${open ? "active" : ""}`}
+        onClick={() => setOpen(!open)}
+      >
+        <span className="ll-user-rol">{usuario.rol}</span>
+        {usuario.nombre}
+        <span className={`ll-chevron ${open ? "open" : ""}`}>›</span>
+      </button>
+ 
+      <div className={`ll-dropdown ll-dropdown--right ${open ? "visible" : ""}`}>
+        <div className="ll-dropdown-inner">
+          <div className="ll-user-info">
+            <p className="ll-user-name">{usuario.nombre}</p>
+            <p className="ll-user-email">{usuario.email}</p>
+          </div>
+          <div className="ll-dropdown-separator" />
+          <button
+            className="ll-dropdown-link ll-dropdown-link--danger"
+            onClick={() => { logout(); navigate("/"); setOpen(false); }}
+          >
+            <span className="ll-link-index">→</span>
+            Cerrar sesión
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+ 
 function Layout() {
   const [openMenu, setOpenMenu] = useState(null);
   const [scrolled, setScrolled] = useState(false);
+  const { usuario } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
 
+  // ← AGREGA ESTO
   useEffect(() => {
-    setOpenMenu(null);
-  }, [location]);
+    if (usuario && location.pathname === "/login") {
+      navigate("/", { replace: true });
+    }
+  }, [usuario]);
+
+  useEffect(() => { setOpenMenu(null); }, [location]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
@@ -94,7 +165,7 @@ function Layout() {
   }, []);
 
   const toggle = (i) => setOpenMenu(openMenu === i ? null : i);
-
+ 
   return (
     <div className="ll-root">
       <header className={`ll-navbar ${scrolled ? "ll-navbar--shadow" : ""}`}>
@@ -104,7 +175,7 @@ function Layout() {
             LuisLand
             <span className="ll-brand-bracket">]</span>
           </Link>
-
+ 
           <nav className="ll-nav">
             {NAV_ITEMS.map((item, i) => (
               <DropdownMenu
@@ -115,20 +186,25 @@ function Layout() {
                 onClose={() => setOpenMenu(null)}
               />
             ))}
+            <UserMenu />
           </nav>
         </div>
       </header>
-
+ 
       <Routes>
-        <Route path="/"          element={<Home />} />
-        <Route path="/sobre-mi"  element={<SobreMi />} />
-        <Route path="/test1"     element={<Test1 />} />
-        <Route path="/test2"     element={<Test1 />} />
+        <Route path="/"         element={<Home />} />
+        <Route path="/sobre-mi" element={<SobreMi />} />
+        <Route path="/login"    element={<Login />} />
+        <Route path="/test1"    element={
+          <PrivateRoute rolesPermitidos={["ADMIN", "DEVELOPER", "VISITANTE"]}>
+            <Test1 />
+          </PrivateRoute>
+        } />
       </Routes>
     </div>
   );
 }
-
+ 
 function Home() {
   return (
     <main className="ll-hero">
@@ -146,11 +222,13 @@ function Home() {
     </main>
   );
 }
-
+ 
 export default function App() {
   return (
-    <BrowserRouter>
-      <Layout />
-    </BrowserRouter>
+    <AuthProvider>
+      <BrowserRouter>
+        <Layout />
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
