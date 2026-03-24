@@ -687,3 +687,57 @@
   background: rgba(239, 68, 68, 0.08);
   color: #f87171;
 }
+
+
+/* ══════════════════════════════════════════
+   LOCK & TOAST
+══════════════════════════════════════════ */
+.ll-dropdown-link--locked {
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  opacity: 0.45;
+  transition: opacity 0.15s, background 0.15s;
+}
+
+.ll-dropdown-link--locked:hover {
+  opacity: 0.65;
+  background: rgba(239, 68, 68, 0.05);
+  color: var(--text-muted);
+}
+
+.ll-lock-icon {
+  margin-left: auto;
+  font-size: 0.7rem;
+  opacity: 0.8;
+}
+
+.ll-toast {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--surface-2);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 8px;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.85rem;
+  color: #f87171;
+  font-family: var(--font-mono);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  z-index: 9999;
+  animation: toastIn 0.3s var(--ease-out) both;
+  white-space: nowrap;
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(12px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+.ll-toast-icon { font-size: 1rem; }

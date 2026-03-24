@@ -6,7 +6,7 @@ import PrivateRoute from "./context/PrivateRoute";
 import Test1    from "./pages/Test1.jsx";
 import SobreMi  from "./pages/SobreMi.jsx";
 import Login    from "./pages/Login.jsx";
- 
+
 const NAV_ITEMS = [
   {
     label: "Información",
@@ -37,17 +37,32 @@ const NAV_ITEMS = [
   },
 ];
 
-function DropdownMenu({ item, isOpen, onToggle, onClose }) {
+// Comprueba si el usuario actual tiene acceso a una opción
+function tieneAcceso(usuario, roles) {
+  if (!roles) return true;
+  if (!usuario) return false;
+  return roles.includes(usuario.rol);
+}
+
+// Toast de acceso denegado
+function AccessToast({ mensaje, onClose }) {
+  useEffect(() => {
+    const t = setTimeout(onClose, 3000);
+    return () => clearTimeout(t);
+  }, [onClose]);
+
+  return (
+    <div className="ll-toast">
+      <span className="ll-toast-icon">🔒</span>
+      {mensaje}
+    </div>
+  );
+}
+
+function DropdownMenu({ item, isOpen, onToggle, onClose, onDenied }) {
   const { usuario } = useAuth();
   const ref = useRef(null);
- 
-  // Filtrar opciones según rol del usuario
-  const opcionesFiltradas = item.items.filter(opt => {
-    if (!opt.roles) return true; // sin restricción
-    if (!usuario)   return false; // no logueado
-    return opt.roles.includes(usuario.rol);
-  });
- 
+
   useEffect(() => {
     function handleClickOutside(e) {
       if (ref.current && !ref.current.contains(e.target)) onClose();
@@ -56,9 +71,6 @@ function DropdownMenu({ item, isOpen, onToggle, onClose }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen, onClose]);
 
-  // Si no hay opciones visibles, no mostrar el menú
-  if (opcionesFiltradas.length === 0) return null;
- 
   return (
     <div className="ll-nav-item" ref={ref}>
       <button
@@ -69,32 +81,53 @@ function DropdownMenu({ item, isOpen, onToggle, onClose }) {
         {item.label}
         <span className={`ll-chevron ${isOpen ? "open" : ""}`}>›</span>
       </button>
- 
+
       <div className={`ll-dropdown ${isOpen ? "visible" : ""}`}>
         <div className="ll-dropdown-inner">
-          {opcionesFiltradas.map((opt, i) => (
-            <Link
-              key={i}
-              to={opt.to}
-              className="ll-dropdown-link"
-              onClick={onClose}
-            >
-              <span className="ll-link-index">0{i + 1}</span>
-              {opt.label}
-            </Link>
-          ))}
+          {item.items.map((opt, i) => {
+            const acceso = tieneAcceso(usuario, opt.roles);
+
+            if (acceso) {
+              return (
+                <Link
+                  key={i}
+                  to={opt.to}
+                  className="ll-dropdown-link"
+                  onClick={onClose}
+                >
+                  <span className="ll-link-index">0{i + 1}</span>
+                  {opt.label}
+                </Link>
+              );
+            }
+
+            return (
+              <button
+                key={i}
+                className="ll-dropdown-link ll-dropdown-link--locked"
+                onClick={() => {
+                  onClose();
+                  onDenied();
+                }}
+              >
+                <span className="ll-link-index">0{i + 1}</span>
+                {opt.label}
+                <span className="ll-lock-icon">🔒</span>
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>
   );
 }
- 
+
 function UserMenu() {
   const { usuario, logout } = useAuth();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
- 
+
   useEffect(() => {
     function handleClickOutside(e) {
       if (ref.current && !ref.current.contains(e.target)) setOpen(false);
@@ -102,7 +135,7 @@ function UserMenu() {
     if (open) document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [open]);
- 
+
   if (!usuario) {
     return (
       <Link to="/login" className="ll-nav-btn">
@@ -110,7 +143,7 @@ function UserMenu() {
       </Link>
     );
   }
- 
+
   return (
     <div className="ll-nav-item" ref={ref}>
       <button
@@ -121,7 +154,7 @@ function UserMenu() {
         {usuario.nombre}
         <span className={`ll-chevron ${open ? "open" : ""}`}>›</span>
       </button>
- 
+
       <div className={`ll-dropdown ll-dropdown--right ${open ? "visible" : ""}`}>
         <div className="ll-dropdown-inner">
           <div className="ll-user-info">
@@ -131,7 +164,7 @@ function UserMenu() {
           <div className="ll-dropdown-separator" />
           <button
             className="ll-dropdown-link ll-dropdown-link--danger"
-            onClick={() => { logout(); navigate("/login", { replace: true }); setOpen(false); }}
+            onClick={() => { logout(); navigate("/"); setOpen(false); }}
           >
             <span className="ll-link-index">→</span>
             Cerrar sesión
@@ -141,20 +174,20 @@ function UserMenu() {
     </div>
   );
 }
- 
+
 function Layout() {
   const [openMenu, setOpenMenu] = useState(null);
   const [scrolled, setScrolled] = useState(false);
+  const [toast, setToast] = useState(false);
   const { usuario } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
-  // ← AGREGA ESTO
   useEffect(() => {
     if (usuario && location.pathname === "/login") {
       navigate("/", { replace: true });
     }
-  }, [usuario, location.pathname, navigate]);
+  }, [usuario]);
 
   useEffect(() => { setOpenMenu(null); }, [location]);
 
@@ -165,7 +198,7 @@ function Layout() {
   }, []);
 
   const toggle = (i) => setOpenMenu(openMenu === i ? null : i);
- 
+
   return (
     <div className="ll-root">
       <header className={`ll-navbar ${scrolled ? "ll-navbar--shadow" : ""}`}>
@@ -175,7 +208,7 @@ function Layout() {
             LuisLand
             <span className="ll-brand-bracket">]</span>
           </Link>
- 
+
           <nav className="ll-nav">
             {NAV_ITEMS.map((item, i) => (
               <DropdownMenu
@@ -184,13 +217,21 @@ function Layout() {
                 isOpen={openMenu === i}
                 onToggle={() => toggle(i)}
                 onClose={() => setOpenMenu(null)}
+                onDenied={() => setToast(true)}
               />
             ))}
             <UserMenu />
           </nav>
         </div>
       </header>
- 
+
+      {toast && (
+        <AccessToast
+          mensaje="Se requiere un nivel de usuario mayor para acceder a esta página"
+          onClose={() => setToast(false)}
+        />
+      )}
+
       <Routes>
         <Route path="/"         element={<Home />} />
         <Route path="/sobre-mi" element={<SobreMi />} />
@@ -204,7 +245,7 @@ function Layout() {
     </div>
   );
 }
- 
+
 function Home() {
   return (
     <main className="ll-hero">
@@ -222,7 +263,7 @@ function Home() {
     </main>
   );
 }
- 
+
 export default function App() {
   return (
     <AuthProvider>
