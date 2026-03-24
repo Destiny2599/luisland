@@ -1,0 +1,308 @@
+/* ═══════════════════════════════════════════
+   LUISLAND — App.css
+   Tema oscuro para programadores
+   ═══════════════════════════════════════════ */
+
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;600&display=swap");
+
+/* ── TOKENS ── */
+:root {
+  --green:        #4ade80;   /* verde principal */
+  --green-dark:   #16a34a;   /* verde oscuro */
+  --green-dim:    #166534;   /* verde apagado para fondos */
+  --green-glow:   rgba(74, 222, 128, 0.15);
+
+  --bg:           #0a0a0a;   /* negro fondo */
+  --surface:      #111111;   /* superficie elevada */
+  --surface-2:    #1a1a1a;   /* superficie dropdown */
+  --border:       rgba(74, 222, 128, 0.18);
+  --border-subtle:rgba(255, 255, 255, 0.06);
+
+  --text-primary: #e8e8e8;
+  --text-muted:   #6b7280;
+  --text-dim:     #374151;
+
+  --nav-height:   56px;
+  --font-mono:    "JetBrains Mono", monospace;
+  --font-sans:    "Inter", sans-serif;
+
+  --ease-out:     cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── RESET ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── ROOT ── */
+.ll-root {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+}
+
+/* ══════════════════════════════════════════
+   NAVBAR
+══════════════════════════════════════════ */
+.ll-navbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: var(--nav-height);
+  background: rgba(10, 10, 10, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-subtle);
+  z-index: 1000;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.ll-navbar--shadow {
+  border-bottom-color: var(--border);
+  box-shadow: 0 1px 40px rgba(0,0,0,0.6);
+}
+
+.ll-navbar-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* ── BRAND ── */
+.ll-brand {
+  font-family: var(--font-mono);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--green);
+  text-decoration: none;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  transition: opacity 0.2s ease;
+}
+
+.ll-brand:hover { opacity: 0.8; }
+
+.ll-brand-bracket {
+  color: var(--green-dark);
+  font-size: 1.2em;
+  opacity: 0.7;
+}
+
+/* ── NAV ── */
+.ll-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ── NAV BUTTON ── */
+.ll-nav-item {
+  position: relative;
+}
+
+.ll-nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 400;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+  white-space: nowrap;
+}
+
+.ll-nav-btn:hover,
+.ll-nav-btn.active {
+  color: var(--green);
+  border-color: var(--border);
+  background: var(--green-glow);
+}
+
+.ll-chevron {
+  display: inline-block;
+  font-size: 1rem;
+  line-height: 1;
+  transform: rotate(90deg);
+  transition: transform 0.25s var(--ease-out), color 0.2s;
+  color: var(--text-dim);
+}
+
+.ll-nav-btn.active .ll-chevron,
+.ll-nav-btn:hover .ll-chevron {
+  color: var(--green-dark);
+}
+
+.ll-chevron.open {
+  transform: rotate(270deg);
+}
+
+/* ── DROPDOWN ── */
+.ll-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  min-width: 200px;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-6px) scale(0.98);
+  transform-origin: top left;
+  transition:
+    opacity 0.2s var(--ease-out),
+    transform 0.25s var(--ease-out);
+}
+
+.ll-dropdown.visible {
+  pointer-events: auto;
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.ll-dropdown-inner {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(74, 222, 128, 0.04),
+    inset 0 1px 0 rgba(255,255,255,0.03);
+}
+
+.ll-dropdown-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 5px;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 400;
+  transition: color 0.15s, background 0.15s;
+  position: relative;
+}
+
+.ll-dropdown-link:hover {
+  color: var(--green);
+  background: var(--green-glow);
+}
+
+.ll-link-index {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--green-dim);
+  letter-spacing: 0.05em;
+  transition: color 0.15s;
+  min-width: 18px;
+}
+
+.ll-dropdown-link:hover .ll-link-index {
+  color: var(--green-dark);
+}
+
+/* ══════════════════════════════════════════
+   HERO
+══════════════════════════════════════════ */
+.ll-hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Grid de fondo */
+.ll-hero-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--border-subtle) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border-subtle) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, black 30%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, black 30%, transparent 100%);
+}
+
+/* Brillo central */
+.ll-hero::before {
+  content: "";
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(74, 222, 128, 0.06) 0%, transparent 70%);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+/* Scanline sutil */
+.ll-scanline {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.03) 2px,
+    rgba(0,0,0,0.03) 4px
+  );
+  pointer-events: none;
+}
+
+/* Contenido hero */
+.ll-hero-content {
+  position: relative;
+  text-align: center;
+  z-index: 1;
+  animation: heroIn 0.9s var(--ease-out) both;
+}
+
+@keyframes heroIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.ll-hero-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--green-dark);
+  letter-spacing: 0.12em;
+  margin-bottom: 20px;
+  opacity: 0.9;
+}
+
+.ll-hero-title {
+  font-family: var(--font-mono);
+  font-size: clamp(2.8rem, 8vw, 5.5rem);
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+.ll-hero-accent {
+  color: var(--green);
+  text-shadow: 0 0 40px rgba(74, 222, 128, 0.3);
+}
+
+.ll-hero-line {
+  width: 48px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--green-dark), var(--green));
+  margin: 28px auto 0;
+  border-radius: 2px;
+  box-shadow: 0 0 10px var(--green-glow);
+}

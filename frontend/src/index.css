@@ -1,0 +1,25 @@
+/* ── LUISLAND — index.css (estilos globales) ── */
+
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  background: #0a0a0a;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar personalizado */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0a0a0a; }
+::-webkit-scrollbar-thumb { background: #1f2f1f; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #166534; }
+
+/* Selección de texto */
+::selection {
+  background: rgba(74, 222, 128, 0.2);
+  color: #e8e8e8;
+}
