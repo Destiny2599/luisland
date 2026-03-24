@@ -11,7 +11,7 @@ export default function SobreMi() {
           <div className="sm-header-text">
             <p className="ll-hero-eyebrow">// sobre_mi.exe</p>
             <h1 className="ll-hero-title">
-              Luis <span className="ll-hero-accent">Ramos</span>
+              Luis <span className="ll-hero-accent">Ramos Rivas</span>
             </h1>
             <p className="sm-role">Ingeniero en Sistemas Computacionales</p>
             <p className="sm-location">📍 Culiacán, Sinaloa</p>

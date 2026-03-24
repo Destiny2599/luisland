@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { BrowserRouter, Routes, Route, Link, useLocation } from "react-router-dom";
 import "./App.css";
 import Test1 from "./pages/Test1.jsx";
+import Test2 from "./pages/Test2.jsx";
 import SobreMi from "./pages/SobreMi.jsx";
 
 const NAV_ITEMS = [
@@ -27,7 +28,7 @@ const NAV_ITEMS = [
     label: "Experimentos",
     items: [
       { label: "Test 1",   to: "/test1" },
-      { label: "Opción 2", to: "/" },
+      { label: "Test 2",    to: "/test2" },
       { label: "Opción 3", to: "/" },
       { label: "Opción 4", to: "/" },
     ],
@@ -122,6 +123,7 @@ function Layout() {
         <Route path="/"          element={<Home />} />
         <Route path="/sobre-mi"  element={<SobreMi />} />
         <Route path="/test1"     element={<Test1 />} />
+        <Route path="/test2"     element={<Test1 />} />
       </Routes>
     </div>
   );
