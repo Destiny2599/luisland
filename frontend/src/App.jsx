@@ -36,7 +36,7 @@ const NAV_ITEMS = [
     ],
   },
 ];
- 
+
 function DropdownMenu({ item, isOpen, onToggle, onClose }) {
   const { usuario } = useAuth();
   const ref = useRef(null);
@@ -48,9 +48,6 @@ function DropdownMenu({ item, isOpen, onToggle, onClose }) {
     return opt.roles.includes(usuario.rol);
   });
  
-  // Si no hay opciones visibles, no mostrar el menú
-  if (opcionesFiltradas.length === 0) return null;
- 
   useEffect(() => {
     function handleClickOutside(e) {
       if (ref.current && !ref.current.contains(e.target)) onClose();
@@ -58,6 +55,9 @@ function DropdownMenu({ item, isOpen, onToggle, onClose }) {
     if (isOpen) document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen, onClose]);
+
+  // Si no hay opciones visibles, no mostrar el menú
+  if (opcionesFiltradas.length === 0) return null;
  
   return (
     <div className="ll-nav-item" ref={ref}>
@@ -131,7 +131,7 @@ function UserMenu() {
           <div className="ll-dropdown-separator" />
           <button
             className="ll-dropdown-link ll-dropdown-link--danger"
-            onClick={() => { logout(); navigate("/"); setOpen(false); }}
+            onClick={() => { logout(); navigate("/login", { replace: true }); setOpen(false); }}
           >
             <span className="ll-link-index">→</span>
             Cerrar sesión
@@ -154,7 +154,7 @@ function Layout() {
     if (usuario && location.pathname === "/login") {
       navigate("/", { replace: true });
     }
-  }, [usuario]);
+  }, [usuario, location.pathname, navigate]);
 
   useEffect(() => { setOpenMenu(null); }, [location]);
 
