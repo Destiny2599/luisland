@@ -1,18 +1,36 @@
 import { useState, useEffect, useRef } from "react";
+import { BrowserRouter, Routes, Route, Link, useLocation } from "react-router-dom";
 import "./App.css";
+import Test1 from "./pages/Test1.jsx";
+import SobreMi from "./pages/SobreMi.jsx";
 
 const NAV_ITEMS = [
   {
     label: "Información",
-    items: ["Opción 1", "Opción 2", "Opción 3", "Opción 4"],
+    items: [
+      { label: "Sobre mí", to: "/sobre-mi" },
+      { label: "Opción 2", to: "/" },
+      { label: "Opción 3", to: "/" },
+      { label: "Opción 4", to: "/" },
+    ],
   },
   {
     label: "Herramientas",
-    items: ["Opción 1", "Opción 2", "Opción 3", "Opción 4"],
+    items: [
+      { label: "Opción 1", to: "/" },
+      { label: "Opción 2", to: "/" },
+      { label: "Opción 3", to: "/" },
+      { label: "Opción 4", to: "/" },
+    ],
   },
   {
     label: "Experimentos",
-    items: ["Opción 1", "Opción 2", "Opción 3", "Opción 4"],
+    items: [
+      { label: "Test 1",   to: "/test1" },
+      { label: "Opción 2", to: "/" },
+      { label: "Opción 3", to: "/" },
+      { label: "Opción 4", to: "/" },
+    ],
   },
 ];
 
@@ -43,10 +61,15 @@ function DropdownMenu({ item, isOpen, onToggle, onClose }) {
       <div className={`ll-dropdown ${isOpen ? "visible" : ""}`}>
         <div className="ll-dropdown-inner">
           {item.items.map((opt, i) => (
-            <a key={i} href="#" className="ll-dropdown-link" onClick={onClose}>
+            <Link
+              key={i}
+              to={opt.to}
+              className="ll-dropdown-link"
+              onClick={onClose}
+            >
               <span className="ll-link-index">0{i + 1}</span>
-              {opt}
-            </a>
+              {opt.label}
+            </Link>
           ))}
         </div>
       </div>
@@ -54,9 +77,14 @@ function DropdownMenu({ item, isOpen, onToggle, onClose }) {
   );
 }
 
-export default function App() {
+function Layout() {
   const [openMenu, setOpenMenu] = useState(null);
   const [scrolled, setScrolled] = useState(false);
+  const location = useLocation();
+
+  useEffect(() => {
+    setOpenMenu(null);
+  }, [location]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
@@ -68,17 +96,14 @@ export default function App() {
 
   return (
     <div className="ll-root">
-      {/* ── NAVBAR ── */}
       <header className={`ll-navbar ${scrolled ? "ll-navbar--shadow" : ""}`}>
         <div className="ll-navbar-inner">
-          {/* Brand */}
-          <a href="#" className="ll-brand">
+          <Link to="/" className="ll-brand">
             <span className="ll-brand-bracket">[</span>
             LuisLand
             <span className="ll-brand-bracket">]</span>
-          </a>
+          </Link>
 
-          {/* Nav */}
           <nav className="ll-nav">
             {NAV_ITEMS.map((item, i) => (
               <DropdownMenu
@@ -93,22 +118,37 @@ export default function App() {
         </div>
       </header>
 
-      {/* ── HERO ── */}
-      <main className="ll-hero">
-        <div className="ll-hero-grid" aria-hidden="true" />
-
-        <div className="ll-hero-content">
-          <p className="ll-hero-eyebrow">// Sistema activo</p>
-          <h1 className="ll-hero-title">
-            Bienvenido,
-            <br />
-            <span className="ll-hero-accent">visitante</span>
-          </h1>
-          <div className="ll-hero-line" />
-        </div>
-
-        <div className="ll-scanline" aria-hidden="true" />
-      </main>
+      <Routes>
+        <Route path="/"          element={<Home />} />
+        <Route path="/sobre-mi"  element={<SobreMi />} />
+        <Route path="/test1"     element={<Test1 />} />
+      </Routes>
     </div>
+  );
+}
+
+function Home() {
+  return (
+    <main className="ll-hero">
+      <div className="ll-hero-grid" aria-hidden="true" />
+      <div className="ll-hero-content">
+        <p className="ll-hero-eyebrow">// Sistema activo</p>
+        <h1 className="ll-hero-title">
+          Bienvenido,
+          <br />
+          <span className="ll-hero-accent">visitante</span>
+        </h1>
+        <div className="ll-hero-line" />
+      </div>
+      <div className="ll-scanline" aria-hidden="true" />
+    </main>
+  );
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <Layout />
+    </BrowserRouter>
   );
 }
