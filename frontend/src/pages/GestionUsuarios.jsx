@@ -1,10 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../context/AuthContext";
 
-const API = "http://localhost:8080/api/admin/usuarios";
+const API   = "http://localhost:8080/api/admin/usuarios";
 const ROLES = ["ADMIN", "DEVELOPER", "VISITANTE"];
-
-// ── Helpers ──────────────────────────────────────────────────────────────────
 
 function authHeaders(token) {
   return {
@@ -13,19 +11,23 @@ function authHeaders(token) {
   };
 }
 
-// ── Sub-componentes ───────────────────────────────────────────────────────────
-
-function EstadoBadge({ rol }) {
+// ── Badge de rol (con variante Master) ───────────────────────────────────────
+function RolBadge({ rol, esMaster }) {
   const colores = {
     ADMIN:     "ll-badge--admin",
     DEVELOPER: "ll-badge--dev",
     VISITANTE: "ll-badge--vis",
   };
+
   return (
-    <span className={`ll-badge ${colores[rol] ?? ""}`}>{rol}</span>
+    <span className={`ll-badge ${colores[rol] ?? ""}`}>
+      {rol}
+      {esMaster && <span className="ll-badge-master"> · MASTER</span>}
+    </span>
   );
 }
 
+// ── Modal crear usuario ───────────────────────────────────────────────────────
 function ModalCrear({ onClose, onCreado, token }) {
   const [form, setForm]     = useState({ nombre: "", email: "", password: "", rol: "VISITANTE" });
   const [error, setError]   = useState("");
@@ -42,7 +44,7 @@ function ModalCrear({ onClose, onCreado, token }) {
     }
     setCarg(true);
     try {
-      const res = await fetch(API, {
+      const res  = await fetch(API, {
         method: "POST",
         headers: authHeaders(token),
         body: JSON.stringify(form),
@@ -131,6 +133,7 @@ function ModalCrear({ onClose, onCreado, token }) {
   );
 }
 
+// ── Modal confirmar eliminar ──────────────────────────────────────────────────
 function ModalConfirmar({ usuario, onClose, onConfirm }) {
   return (
     <div className="ll-modal-overlay" onClick={onClose}>
@@ -156,19 +159,17 @@ function ModalConfirmar({ usuario, onClose, onConfirm }) {
 }
 
 // ── Componente principal ──────────────────────────────────────────────────────
-
 export default function GestionUsuarios() {
   const { usuario } = useAuth();
 
-  const [usuarios,     setUsuarios]     = useState([]);
-  const [cargando,     setCargando]     = useState(true);
-  const [error,        setError]        = useState("");
-  const [modalCrear,   setModalCrear]   = useState(false);
-  const [modalElim,    setModalElim]    = useState(null);   // usuario a eliminar
-  const [toastMsg,     setToastMsg]     = useState("");
-  const [rolEditando,  setRolEditando]  = useState({});     // { [id]: nuevoRol }
+  const [usuarios,    setUsuarios]    = useState([]);
+  const [cargando,    setCargando]    = useState(true);
+  const [error,       setError]       = useState("");
+  const [modalCrear,  setModalCrear]  = useState(false);
+  const [modalElim,   setModalElim]   = useState(null);
+  const [toastMsg,    setToastMsg]    = useState("");
+  const [rolEditando, setRolEditando] = useState({});
 
-  // Carga la lista de usuarios
   const cargarUsuarios = useCallback(async () => {
     setCargando(true);
     setError("");
@@ -186,13 +187,11 @@ export default function GestionUsuarios() {
 
   useEffect(() => { cargarUsuarios(); }, [cargarUsuarios]);
 
-  // Toast temporal
   const mostrarToast = (msg) => {
     setToastMsg(msg);
     setTimeout(() => setToastMsg(""), 3000);
   };
 
-  // Eliminar usuario
   const eliminarUsuario = async () => {
     const id = modalElim.id;
     setModalElim(null);
@@ -201,7 +200,8 @@ export default function GestionUsuarios() {
         method: "DELETE",
         headers: authHeaders(usuario.token),
       });
-      if (!res.ok) { mostrarToast("❌ Error al eliminar usuario."); return; }
+      const data = await res.json();
+      if (!res.ok) { mostrarToast(`❌ ${data.error}`); return; }
       mostrarToast("✅ Usuario eliminado correctamente.");
       cargarUsuarios();
     } catch {
@@ -209,17 +209,16 @@ export default function GestionUsuarios() {
     }
   };
 
-  // Cambiar rol inline
   const cambiarRol = async (id, nuevoRol) => {
     try {
-      const res = await fetch(`${API}/${id}/rol`, {
+      const res  = await fetch(`${API}/${id}/rol`, {
         method: "PUT",
         headers: authHeaders(usuario.token),
         body: JSON.stringify({ rol: nuevoRol }),
       });
-      if (!res.ok) { mostrarToast("❌ Error al cambiar el rol."); return; }
+      const data = await res.json();
+      if (!res.ok) { mostrarToast(`❌ ${data.error}`); return; }
       mostrarToast("✅ Rol actualizado correctamente.");
-      // Actualiza localmente sin recargar toda la lista
       setUsuarios((prev) =>
         prev.map((u) => (u.id === id ? { ...u, rol: nuevoRol } : u))
       );
@@ -230,7 +229,6 @@ export default function GestionUsuarios() {
   };
 
   // ── Render ────────────────────────────────────────────────────────────────
-
   return (
     <main className="ll-hero ll-hero--top">
       <div className="ll-hero-grid" aria-hidden="true" />
@@ -238,7 +236,6 @@ export default function GestionUsuarios() {
 
       <div className="ll-page-content">
 
-        {/* Cabecera de página */}
         <div className="ll-page-header">
           <div>
             <p className="ll-hero-eyebrow">// panel de administración</p>
@@ -246,15 +243,11 @@ export default function GestionUsuarios() {
               Gestión de <span className="ll-hero-accent">usuarios</span>
             </h1>
           </div>
-          <button
-            className="ll-btn ll-btn--primary"
-            onClick={() => setModalCrear(true)}
-          >
+          <button className="ll-btn ll-btn--primary" onClick={() => setModalCrear(true)}>
             + Nuevo usuario
           </button>
         </div>
 
-        {/* Estado de carga / error */}
         {cargando && (
           <div className="ll-status-msg">
             <span className="ll-spinner" /> Cargando usuarios...
@@ -264,7 +257,6 @@ export default function GestionUsuarios() {
           <div className="ll-status-msg ll-status-msg--error">{error}</div>
         )}
 
-        {/* Tabla */}
         {!cargando && !error && (
           <div className="ll-table-wrap">
             <table className="ll-table">
@@ -286,48 +278,60 @@ export default function GestionUsuarios() {
                     </td>
                   </tr>
                 )}
+
                 {usuarios.map((u, i) => {
                   const rolLocal = rolEditando[u.id] ?? u.rol;
                   const cambio   = rolLocal !== u.rol;
 
                   return (
-                    <tr key={u.id}>
+                    <tr key={u.id} className={u.esMaster ? "ll-table-row--master" : ""}>
                       <td className="ll-table-idx">{String(i + 1).padStart(2, "0")}</td>
-                      <td className="ll-table-nombre">{u.nombre}</td>
+                      <td className="ll-table-nombre">
+                        {u.nombre}
+                        {u.esMaster && <span className="ll-master-label"> ★</span>}
+                      </td>
                       <td className="ll-table-email">{u.email}</td>
-                      <td><EstadoBadge rol={u.rol} /></td>
+                      <td><RolBadge rol={u.rol} esMaster={u.esMaster} /></td>
 
-                      {/* Selector de rol */}
+                      {/* Selector de rol — bloqueado si es Master */}
                       <td>
-                        <div className="ll-rol-group">
-                          <select
-                            className="ll-form-input ll-form-select ll-form-select--sm"
-                            value={rolLocal}
-                            onChange={(e) =>
-                              setRolEditando((prev) => ({ ...prev, [u.id]: e.target.value }))
-                            }
-                          >
-                            {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
-                          </select>
-                          {cambio && (
-                            <button
-                              className="ll-btn ll-btn--xs ll-btn--primary"
-                              onClick={() => cambiarRol(u.id, rolLocal)}
+                        {u.esMaster ? (
+                          <span className="ll-master-lock">— protegido —</span>
+                        ) : (
+                          <div className="ll-rol-group">
+                            <select
+                              className="ll-form-input ll-form-select ll-form-select--sm"
+                              value={rolLocal}
+                              onChange={(e) =>
+                                setRolEditando((prev) => ({ ...prev, [u.id]: e.target.value }))
+                              }
                             >
-                              Guardar
-                            </button>
-                          )}
-                        </div>
+                              {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
+                            </select>
+                            {cambio && (
+                              <button
+                                className="ll-btn ll-btn--xs ll-btn--primary"
+                                onClick={() => cambiarRol(u.id, rolLocal)}
+                              >
+                                Guardar
+                              </button>
+                            )}
+                          </div>
+                        )}
                       </td>
 
-                      {/* Eliminar */}
+                      {/* Eliminar — bloqueado si es Master */}
                       <td>
-                        <button
-                          className="ll-btn ll-btn--xs ll-btn--danger"
-                          onClick={() => setModalElim(u)}
-                        >
-                          Eliminar
-                        </button>
+                        {u.esMaster ? (
+                          <span className="ll-master-lock">— protegido —</span>
+                        ) : (
+                          <button
+                            className="ll-btn ll-btn--xs ll-btn--danger"
+                            onClick={() => setModalElim(u)}
+                          >
+                            Eliminar
+                          </button>
+                        )}
                       </td>
                     </tr>
                   );
@@ -338,7 +342,6 @@ export default function GestionUsuarios() {
         )}
       </div>
 
-      {/* Modales */}
       {modalCrear && (
         <ModalCrear
           token={usuario.token}
@@ -354,7 +357,6 @@ export default function GestionUsuarios() {
         />
       )}
 
-      {/* Toast global */}
       {toastMsg && <div className="ll-toast">{toastMsg}</div>}
     </main>
   );

@@ -26,23 +26,24 @@ public class UsuarioController {
     }
 
     // ── GET /api/admin/usuarios ─────────────────────────────────────
-    // Devuelve todos los usuarios (sin exponer el password)
     @GetMapping
-    public ResponseEntity<List<Map<String, String>>> listar() {
-        List<Map<String, String>> lista = usuarioRepo.findAll().stream()
-                .map(u -> Map.of(
-                        "id",     u.getId(),
-                        "nombre", u.getNombre(),
-                        "email",  u.getEmail(),
-                        "rol",    u.getRol().name()
-                ))
-                .toList();
+public ResponseEntity<List<Map<String, Object>>> listar() {
+    List<Map<String, Object>> lista = usuarioRepo.findAll().stream()
+            .map(u -> {
+                Map<String, Object> map = new java.util.HashMap<>();
+                map.put("id",       u.getId());
+                map.put("nombre",   u.getNombre());
+                map.put("email",    u.getEmail());
+                map.put("rol",      u.getRol().name());
+                map.put("esMaster", u.isEsMaster());
+                return map;
+            })
+            .toList();
 
-        return ResponseEntity.ok(lista);
-    }
+    return ResponseEntity.ok(lista);
+}
 
     // ── POST /api/admin/usuarios ────────────────────────────────────
-    // Crea un usuario nuevo (misma lógica que /registro)
     @PostMapping
     public ResponseEntity<?> crear(@RequestBody Map<String, String> body) {
         String email    = body.get("email");
@@ -69,14 +70,9 @@ public class UsuarioController {
             rol = Rol.VISITANTE;
         }
 
-        Usuario nuevo = new Usuario(
-                nombre,
-                email,
-                passwordEncoder.encode(password),
-                rol
-        );
-
+        Usuario nuevo = new Usuario(nombre, email, passwordEncoder.encode(password), rol);
         usuarioRepo.save(nuevo);
+
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(Map.of("mensaje", "Usuario creado correctamente"));
     }
@@ -84,9 +80,17 @@ public class UsuarioController {
     // ── DELETE /api/admin/usuarios/{id} ────────────────────────────
     @DeleteMapping("/{id}")
     public ResponseEntity<?> eliminar(@PathVariable String id) {
-        if (!usuarioRepo.existsById(id)) {
+        Optional<Usuario> opt = usuarioRepo.findById(id);
+
+        if (opt.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", "Usuario no encontrado"));
+        }
+
+        // Protección Master — nunca se puede eliminar
+        if (opt.get().isEsMaster()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("error", "El usuario Master no puede ser eliminado"));
         }
 
         usuarioRepo.deleteById(id);
@@ -98,9 +102,16 @@ public class UsuarioController {
     public ResponseEntity<?> cambiarRol(@PathVariable String id,
                                         @RequestBody Map<String, String> body) {
         Optional<Usuario> opt = usuarioRepo.findById(id);
+
         if (opt.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", "Usuario no encontrado"));
+        }
+
+        // Protección Master — nunca se puede degradar
+        if (opt.get().isEsMaster()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("error", "El rol del usuario Master no puede ser modificado"));
         }
 
         Rol nuevoRol;
