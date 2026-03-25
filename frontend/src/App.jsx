@@ -6,15 +6,17 @@ import PrivateRoute from "./context/PrivateRoute";
 import Test1    from "./pages/Test1.jsx";
 import SobreMi  from "./pages/SobreMi.jsx";
 import Login    from "./pages/Login.jsx";
+import GestionUsuarios from "./pages/GestionUsuarios.jsx";
 
 const NAV_ITEMS = [
   {
     label: "Información",
     items: [
       { label: "Sobre mí", to: "/sobre-mi", roles: null },
-      { label: "Opción 2", to: "/",         roles: null },
+      { label: "Gestión de usuarios", to: "/gestion-usuarios", roles: ["ADMIN"] },,
       { label: "Opción 3", to: "/",         roles: null },
       { label: "Opción 4", to: "/",         roles: null },
+
     ],
   },
   {
@@ -234,6 +236,11 @@ function Layout() {
 
       <Routes>
         <Route path="/"         element={<Home />} />
+        <Route path="/gestion-usuarios" element={
+          <PrivateRoute rolesPermitidos={["ADMIN"]}>
+            <GestionUsuarios />
+          </PrivateRoute>
+        } />
         <Route path="/sobre-mi" element={<SobreMi />} />
         <Route path="/login"    element={<Login />} />
         <Route path="/test1"    element={

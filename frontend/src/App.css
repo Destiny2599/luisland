@@ -741,3 +741,373 @@
 }
 
 .ll-toast-icon { font-size: 1rem; }
+
+/* ═══════════════════════════════════════════════════════════════
+   FASE 2 — Gestión de usuarios
+   Pegar al final de App.css
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Página general ──────────────────────────────────────────── */
+.ll-hero--top {
+  align-items: flex-start;
+  padding-top: 6rem;
+  min-height: 100vh;
+}
+
+.ll-page-content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+}
+
+.ll-page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.ll-page-title {
+  font-family: var(--font-mono);
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  font-weight: 700;
+  color: var(--text);
+  margin: 0.25rem 0 0;
+  line-height: 1.2;
+}
+
+/* ── Botones ─────────────────────────────────────────────────── */
+.ll-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1.2rem;
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.ll-btn--primary {
+  background: var(--green);
+  color: #000;
+  border-color: var(--green);
+}
+.ll-btn--primary:hover:not(:disabled) {
+  background: var(--green-dark);
+  border-color: var(--green-dark);
+}
+.ll-btn--primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ll-btn--ghost {
+  background: transparent;
+  color: var(--text-muted);
+  border-color: var(--border);
+}
+.ll-btn--ghost:hover {
+  color: var(--text);
+  border-color: var(--text-muted);
+}
+
+.ll-btn--danger {
+  background: transparent;
+  color: #f87171;
+  border-color: #f87171;
+}
+.ll-btn--danger:hover {
+  background: rgba(248, 113, 113, 0.12);
+}
+
+.ll-btn--xs {
+  padding: 0.3rem 0.7rem;
+  font-size: 0.75rem;
+}
+
+/* ── Tabla ───────────────────────────────────────────────────── */
+.ll-table-wrap {
+  overflow-x: auto;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.ll-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+}
+
+.ll-table thead tr {
+  border-bottom: 1px solid var(--border);
+}
+
+.ll-table th {
+  padding: 0.85rem 1rem;
+  text-align: left;
+  color: var(--green);
+  font-weight: 600;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.ll-table td {
+  padding: 0.8rem 1rem;
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.ll-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.ll-table tbody tr:hover {
+  background: rgba(74, 222, 128, 0.04);
+}
+
+.ll-table-idx {
+  color: var(--text-muted) !important;
+  font-size: 0.75rem !important;
+  width: 2.5rem;
+}
+
+.ll-table-nombre {
+  font-weight: 600;
+}
+
+.ll-table-email {
+  color: var(--text-muted) !important;
+}
+
+/* ── Badges de rol ───────────────────────────────────────────── */
+.ll-badge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  border: 1px solid transparent;
+}
+
+.ll-badge--admin {
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.1);
+  border-color: rgba(251, 191, 36, 0.3);
+}
+
+.ll-badge--dev {
+  color: var(--green);
+  background: rgba(74, 222, 128, 0.08);
+  border-color: rgba(74, 222, 128, 0.25);
+}
+
+.ll-badge--vis {
+  color: var(--text-muted);
+  background: rgba(255,255,255, 0.04);
+  border-color: var(--border);
+}
+
+/* ── Selector de rol inline ──────────────────────────────────── */
+.ll-rol-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* ── Inputs y formularios ────────────────────────────────────── */
+.ll-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+
+.ll-form-label {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--green);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.ll-form-input {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.6rem 0.85rem;
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  transition: border-color 0.18s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.ll-form-input:focus {
+  outline: none;
+  border-color: var(--green);
+  box-shadow: 0 0 0 2px rgba(74, 222, 128, 0.15);
+}
+
+.ll-form-input::placeholder {
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+
+.ll-form-select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234ade80' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  padding-right: 2.2rem;
+}
+
+.ll-form-select--sm {
+  padding: 0.3rem 2rem 0.3rem 0.6rem;
+  font-size: 0.78rem;
+}
+
+.ll-form-select option {
+  background: var(--surface);
+  color: var(--text);
+}
+
+.ll-form-error {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: #f87171;
+  background: rgba(248, 113, 113, 0.08);
+  border: 1px solid rgba(248, 113, 113, 0.25);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+/* ── Modal ───────────────────────────────────────────────────── */
+.ll-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  animation: ll-fade-in 0.15s ease;
+}
+
+.ll-modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+  animation: ll-slide-up 0.2s ease;
+}
+
+.ll-modal--sm {
+  max-width: 360px;
+}
+
+.ll-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem 0;
+  gap: 1rem;
+}
+
+.ll-modal-title {
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.ll-modal-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.15rem;
+  line-height: 1;
+  transition: color 0.15s;
+  flex-shrink: 0;
+}
+.ll-modal-close:hover { color: var(--text); }
+
+.ll-modal-body {
+  padding: 1.25rem 1.5rem;
+}
+
+.ll-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 0 1.5rem 1.25rem;
+}
+
+/* ── Status / loader ─────────────────────────────────────────── */
+.ll-status-msg {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  padding: 1.5rem 0;
+}
+
+.ll-status-msg--error {
+  color: #f87171;
+}
+
+.ll-spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--border);
+  border-top-color: var(--green);
+  border-radius: 50%;
+  animation: ll-spin 0.7s linear infinite;
+}
+
+/* ── Animaciones ─────────────────────────────────────────────── */
+@keyframes ll-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes ll-slide-up {
+  from { transform: translateY(16px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+@keyframes ll-spin {
+  to { transform: rotate(360deg); }
+}
