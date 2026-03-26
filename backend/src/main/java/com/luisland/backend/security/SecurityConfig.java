@@ -55,7 +55,7 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
         javaconfig.setAllowedOrigins(List.of(
             "http://localhost:5173",
-            "https://luisland.vercel.app"
+            "https://luisland.vercel.app",
             "https://luisland-git-master-destiny2599s-projects.vercel.app",
             "https://luisland-cea4uz80d-destiny2599s-projects.vercel.app"
 
