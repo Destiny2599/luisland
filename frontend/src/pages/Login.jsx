@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 export default function Login() {
   const [email, setEmail]       = useState("");
   const [password, setPassword] = useState("");
@@ -11,33 +13,33 @@ export default function Login() {
   const { login } = useAuth();
   const navigate  = useNavigate();
 
- const handleSubmit = async (e) => {
-  e.preventDefault();
-  setError("");
-  setCargando(true);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setCargando(true);
 
-  try {
-    const res = await fetch("http://localhost:8080/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
+    try {
+      const res = await fetch(`${API_URL}/api/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (!res.ok) {
-      setError(data.error || "Credenciales incorrectas");
-      return;
+      if (!res.ok) {
+        setError(data.error || "Credenciales incorrectas");
+        return;
+      }
+
+      login(data);
+      navigate("/", { replace: true });
+    } catch (err) {
+      setError("No se pudo conectar con el servidor");
+    } finally {
+      setCargando(false);
     }
-
-    login(data);
-    navigate("/", { replace: true });
-  } catch (err) {
-    setError("No se pudo conectar con el servidor");
-  } finally {
-    setCargando(false);
-  }
-};
+  };
 
   return (
     <main className="ll-hero">

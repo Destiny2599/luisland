@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../context/AuthContext";
 
-const API   = "http://localhost:8080/api/admin/usuarios";
+const API = `${import.meta.env.VITE_API_URL}/api/admin/usuarios`;
 const ROLES = ["ADMIN", "DEVELOPER", "VISITANTE"];
 
 function authHeaders(token) {
