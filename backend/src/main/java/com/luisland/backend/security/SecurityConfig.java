@@ -54,10 +54,9 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of(
-            "http://localhost:5173",
-            "https://luisland.vercel.app",
-            "https://luisland-git-master-destiny2599s-projects.vercel.app",
-            "https://luisland-cea4uz80d-destiny2599s-projects.vercel.app"
+        "http://localhost:5173",
+        "https://luisland.vercel.app",
+        "https://*.vercel.app"
 
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
