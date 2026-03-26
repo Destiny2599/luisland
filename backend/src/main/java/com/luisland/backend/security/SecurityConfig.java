@@ -53,7 +53,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        javaconfig.setAllowedOrigins(List.of(
+        config.setAllowedOrigins(List.of(
             "http://localhost:5173",
             "https://luisland.vercel.app",
             "https://luisland-git-master-destiny2599s-projects.vercel.app",
