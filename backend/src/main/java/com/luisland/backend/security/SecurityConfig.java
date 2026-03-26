@@ -39,15 +39,11 @@ public class SecurityConfig {
 
             .authorizeHttpRequests(auth -> auth
 
-                // ✅ permitir preflight
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                // públicas
-                .requestMatchers("/api/auth/login").permitAll()
-                .requestMatchers("/api/auth/registro").permitAll()
+                .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/bienvenido").permitAll()
 
-                // roles
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/developer/**").hasAnyRole("ADMIN", "DEVELOPER")
 
