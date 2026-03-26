@@ -28,11 +28,20 @@ public class JwtFilter extends OncePerRequestFilter {
                                     FilterChain chain)
             throws ServletException, IOException {
 
+        // ✅ IMPORTANTE: dejar pasar el preflight CORS
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            chain.doFilter(request, response);
+            return;
+        }
+
         String header = request.getHeader("Authorization");
 
         if (header != null && header.startsWith("Bearer ")) {
+
             String token = header.substring(7);
+
             if (jwtUtil.validarToken(token)) {
+
                 String email = jwtUtil.obtenerEmail(token);
                 String rol   = jwtUtil.obtenerRol(token);
 
@@ -42,6 +51,7 @@ public class JwtFilter extends OncePerRequestFilter {
                                 null,
                                 List.of(new SimpleGrantedAuthority("ROLE_" + rol))
                         );
+
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }
         }
