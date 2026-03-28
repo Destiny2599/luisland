@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../context/AuthContext";
 
-const API = `${import.meta.env.VITE_API_URL}/api/admin/usuarios`;
-const ROLES = ["ADMIN", "DEVELOPER", "VISITANTE"];
+const API   = `${import.meta.env.VITE_API_URL}/api/admin/usuarios`;
+const ROLES = ["ADMIN", "DEVELOPER", "STANDARD"];
 
 function authHeaders(token) {
   return {
@@ -11,14 +11,13 @@ function authHeaders(token) {
   };
 }
 
-// ── Badge de rol (con variante Master) ───────────────────────────────────────
+// ── Badge de rol ──────────────────────────────────────────────────────────────
 function RolBadge({ rol, esMaster }) {
   const colores = {
     ADMIN:     "ll-badge--admin",
     DEVELOPER: "ll-badge--dev",
-    VISITANTE: "ll-badge--vis",
+    STANDARD:  "ll-badge--vis",
   };
-
   return (
     <span className={`ll-badge ${colores[rol] ?? ""}`}>
       {rol}
@@ -27,9 +26,54 @@ function RolBadge({ rol, esMaster }) {
   );
 }
 
+// ── Celda editable inline ─────────────────────────────────────────────────────
+function CeldaEditable({ valor, onGuardar, disabled }) {
+  const [editando, setEditando] = useState(false);
+  const [temp, setTemp]         = useState(valor);
+
+  const handleGuardar = () => {
+    if (temp.trim() && temp !== valor) {
+      onGuardar(temp.trim());
+    }
+    setEditando(false);
+    setTemp(valor);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter")  handleGuardar();
+    if (e.key === "Escape") { setEditando(false); setTemp(valor); }
+  };
+
+  if (disabled) return <span>{valor}</span>;
+
+  if (editando) {
+    return (
+      <input
+        className="ll-form-input ll-inline-input"
+        value={temp}
+        autoFocus
+        onChange={(e) => setTemp(e.target.value)}
+        onBlur={handleGuardar}
+        onKeyDown={handleKeyDown}
+      />
+    );
+  }
+
+  return (
+    <span
+      className="ll-inline-editable"
+      onClick={() => { setEditando(true); setTemp(valor); }}
+      title="Clic para editar"
+    >
+      {valor}
+      <span className="ll-inline-edit-icon">✎</span>
+    </span>
+  );
+}
+
 // ── Modal crear usuario ───────────────────────────────────────────────────────
 function ModalCrear({ onClose, onCreado, token }) {
-  const [form, setForm]     = useState({ nombre: "", email: "", password: "", rol: "VISITANTE" });
+  const [form, setForm]     = useState({ nombre: "", email: "", password: "", rol: "STANDARD" });
   const [error, setError]   = useState("");
   const [cargando, setCarg] = useState(false);
 
@@ -73,50 +117,21 @@ function ModalCrear({ onClose, onCreado, token }) {
 
         <div className="ll-modal-body">
           {error && <p className="ll-form-error">{error}</p>}
-
           <div className="ll-form-group">
             <label className="ll-form-label">Nombre</label>
-            <input
-              className="ll-form-input"
-              name="nombre"
-              placeholder="Ej: Luis García"
-              value={form.nombre}
-              onChange={handleChange}
-            />
+            <input className="ll-form-input" name="nombre" placeholder="Ej: Luis García" value={form.nombre} onChange={handleChange} />
           </div>
-
           <div className="ll-form-group">
             <label className="ll-form-label">Email</label>
-            <input
-              className="ll-form-input"
-              name="email"
-              type="email"
-              placeholder="correo@ejemplo.com"
-              value={form.email}
-              onChange={handleChange}
-            />
+            <input className="ll-form-input" name="email" type="email" placeholder="correo@ejemplo.com" value={form.email} onChange={handleChange} />
           </div>
-
           <div className="ll-form-group">
             <label className="ll-form-label">Password</label>
-            <input
-              className="ll-form-input"
-              name="password"
-              type="password"
-              placeholder="Mínimo 6 caracteres"
-              value={form.password}
-              onChange={handleChange}
-            />
+            <input className="ll-form-input" name="password" type="password" placeholder="Mínimo 6 caracteres" value={form.password} onChange={handleChange} />
           </div>
-
           <div className="ll-form-group">
             <label className="ll-form-label">Rol</label>
-            <select
-              className="ll-form-input ll-form-select"
-              name="rol"
-              value={form.rol}
-              onChange={handleChange}
-            >
+            <select className="ll-form-input ll-form-select" name="rol" value={form.rol} onChange={handleChange}>
               {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
             </select>
           </div>
@@ -196,10 +211,7 @@ export default function GestionUsuarios() {
     const id = modalElim.id;
     setModalElim(null);
     try {
-      const res = await fetch(`${API}/${id}`, {
-        method: "DELETE",
-        headers: authHeaders(usuario.token),
-      });
+      const res  = await fetch(`${API}/${id}`, { method: "DELETE", headers: authHeaders(usuario.token) });
       const data = await res.json();
       if (!res.ok) { mostrarToast(`❌ ${data.error}`); return; }
       mostrarToast("✅ Usuario eliminado correctamente.");
@@ -219,16 +231,29 @@ export default function GestionUsuarios() {
       const data = await res.json();
       if (!res.ok) { mostrarToast(`❌ ${data.error}`); return; }
       mostrarToast("✅ Rol actualizado correctamente.");
-      setUsuarios((prev) =>
-        prev.map((u) => (u.id === id ? { ...u, rol: nuevoRol } : u))
-      );
+      setUsuarios((prev) => prev.map((u) => (u.id === id ? { ...u, rol: nuevoRol } : u)));
       setRolEditando((prev) => { const c = { ...prev }; delete c[id]; return c; });
     } catch {
       mostrarToast("❌ No se pudo conectar con el servidor.");
     }
   };
 
-  // ── Render ────────────────────────────────────────────────────────────────
+  const cambiarInfo = async (id, campo, valor) => {
+    try {
+      const res  = await fetch(`${API}/${id}/info`, {
+        method: "PUT",
+        headers: authHeaders(usuario.token),
+        body: JSON.stringify({ [campo]: valor }),
+      });
+      const data = await res.json();
+      if (!res.ok) { mostrarToast(`❌ ${data.error}`); cargarUsuarios(); return; }
+      mostrarToast("✅ Usuario actualizado correctamente.");
+      setUsuarios((prev) => prev.map((u) => (u.id === id ? { ...u, [campo]: valor } : u)));
+    } catch {
+      mostrarToast("❌ No se pudo conectar con el servidor.");
+    }
+  };
+
   return (
     <main className="ll-hero ll-hero--top">
       <div className="ll-hero-grid" aria-hidden="true" />
@@ -286,14 +311,28 @@ export default function GestionUsuarios() {
                   return (
                     <tr key={u.id} className={u.esMaster ? "ll-table-row--master" : ""}>
                       <td className="ll-table-idx">{String(i + 1).padStart(2, "0")}</td>
+
+                      {/* Nombre editable */}
                       <td className="ll-table-nombre">
-                        {u.nombre}
+                        <CeldaEditable
+                          valor={u.nombre}
+                          disabled={u.esMaster}
+                          onGuardar={(val) => cambiarInfo(u.id, "nombre", val)}
+                        />
                         {u.esMaster && <span className="ll-master-label"> ★</span>}
                       </td>
-                      <td className="ll-table-email">{u.email}</td>
+
+                      {/* Email editable */}
+                      <td className="ll-table-email">
+                        <CeldaEditable
+                          valor={u.email}
+                          disabled={u.esMaster}
+                          onGuardar={(val) => cambiarInfo(u.id, "email", val)}
+                        />
+                      </td>
+
                       <td><RolBadge rol={u.rol} esMaster={u.esMaster} /></td>
 
-                      {/* Selector de rol — bloqueado si es Master */}
                       <td>
                         {u.esMaster ? (
                           <span className="ll-master-lock">— protegido —</span>
@@ -320,7 +359,6 @@ export default function GestionUsuarios() {
                         )}
                       </td>
 
-                      {/* Eliminar — bloqueado si es Master */}
                       <td>
                         {u.esMaster ? (
                           <span className="ll-master-lock">— protegido —</span>

@@ -128,4 +128,41 @@ public ResponseEntity<List<Map<String, Object>>> listar() {
 
         return ResponseEntity.ok(Map.of("mensaje", "Rol actualizado correctamente"));
     }
+
+        // ── PUT /api/admin/usuarios/{id}/info ──────────────────────────
+    @PutMapping("/{id}/info")
+    public ResponseEntity<?> cambiarInfo(@PathVariable String id,
+                                        @RequestBody Map<String, String> body) {
+        Optional<Usuario> opt = usuarioRepo.findById(id);
+
+        if (opt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "Usuario no encontrado"));
+        }
+
+        if (opt.get().isEsMaster()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("error", "No se puede modificar al usuario Master"));
+        }
+
+        Usuario usuario = opt.get();
+
+        String nuevoNombre = body.get("nombre");
+        String nuevoEmail  = body.get("email");
+
+        if (nuevoNombre != null && !nuevoNombre.isBlank()) {
+            usuario.setNombre(nuevoNombre);
+        }
+
+        if (nuevoEmail != null && !nuevoEmail.isBlank()) {
+            if (!nuevoEmail.equals(usuario.getEmail()) && usuarioRepo.existsByEmail(nuevoEmail)) {
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                        .body(Map.of("error", "El email ya está registrado"));
+            }
+            usuario.setEmail(nuevoEmail);
+        }
+
+        usuarioRepo.save(usuario);
+        return ResponseEntity.ok(Map.of("mensaje", "Usuario actualizado correctamente"));
+    }
 }

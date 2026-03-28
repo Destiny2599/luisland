@@ -1514,3 +1514,32 @@
 @keyframes ll-spin {
   to { transform: rotate(360deg); }
 }
+
+/* ── Edición inline ──────────────────────────────────────────── */
+.ll-inline-editable {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 0.15rem 0.3rem;
+  transition: background 0.15s;
+}
+.ll-inline-editable:hover {
+  background: rgba(74, 222, 128, 0.08);
+}
+.ll-inline-edit-icon {
+  font-size: 0.7rem;
+  color: var(--green);
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.ll-inline-editable:hover .ll-inline-edit-icon {
+  opacity: 1;
+}
+.ll-inline-input {
+  padding: 0.25rem 0.5rem !important;
+  font-size: 0.85rem !important;
+  width: auto !important;
+  min-width: 120px;
+}

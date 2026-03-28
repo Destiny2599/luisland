@@ -3,20 +3,19 @@ import { BrowserRouter, Routes, Route, Link, useLocation, useNavigate } from "re
 import "./App.css";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import PrivateRoute from "./context/PrivateRoute";
-import Test1    from "./pages/Test1.jsx";
-import SobreMi  from "./pages/SobreMi.jsx";
-import Login    from "./pages/Login.jsx";
+import Test1          from "./pages/Test1.jsx";
+import SobreMi        from "./pages/SobreMi.jsx";
+import Login          from "./pages/Login.jsx";
 import GestionUsuarios from "./pages/GestionUsuarios.jsx";
 
 const NAV_ITEMS = [
   {
     label: "Información",
     items: [
-      { label: "Sobre mí", to: "/sobre-mi", roles: null },
-      { label: "Gestión de usuarios", to: "/gestion-usuarios", roles: ["ADMIN"] },,
-      { label: "Opción 3", to: "/",         roles: null },
-      { label: "Opción 4", to: "/",         roles: null },
-
+      { label: "Sobre mí",  to: "/sobre-mi", roles: null },
+      { label: "Opción 2",  to: "/",         roles: null },
+      { label: "Opción 3",  to: "/",         roles: null },
+      { label: "Opción 4",  to: "/",         roles: null },
     ],
   },
   {
@@ -31,7 +30,7 @@ const NAV_ITEMS = [
   {
     label: "Experimentos",
     items: [
-      { label: "Test 1",   to: "/test1", roles: ["ADMIN", "DEVELOPER", "VISITANTE"] },
+      { label: "Test 1",   to: "/test1", roles: ["ADMIN", "DEVELOPER", "STANDARD"] },
       { label: "Opción 2", to: "/",      roles: ["ADMIN", "DEVELOPER"] },
       { label: "Opción 3", to: "/",      roles: ["ADMIN", "DEVELOPER"] },
       { label: "Opción 4", to: "/",      roles: ["ADMIN", "DEVELOPER"] },
@@ -39,14 +38,12 @@ const NAV_ITEMS = [
   },
 ];
 
-// Comprueba si el usuario actual tiene acceso a una opción
 function tieneAcceso(usuario, roles) {
   if (!roles) return true;
   if (!usuario) return false;
   return roles.includes(usuario.rol);
 }
 
-// Toast de acceso denegado
 function AccessToast({ mensaje, onClose }) {
   useEffect(() => {
     const t = setTimeout(onClose, 3000);
@@ -107,10 +104,7 @@ function DropdownMenu({ item, isOpen, onToggle, onClose, onDenied }) {
               <button
                 key={i}
                 className="ll-dropdown-link ll-dropdown-link--locked"
-                onClick={() => {
-                  onClose();
-                  onDenied();
-                }}
+                onClick={() => { onClose(); onDenied(); }}
               >
                 <span className="ll-link-index">0{i + 1}</span>
                 {opt.label}
@@ -124,7 +118,7 @@ function DropdownMenu({ item, isOpen, onToggle, onClose, onDenied }) {
   );
 }
 
-function UserMenu() {
+function UserMenu({ onDenied }) {
   const { usuario, logout } = useAuth();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
@@ -159,11 +153,39 @@ function UserMenu() {
 
       <div className={`ll-dropdown ll-dropdown--right ${open ? "visible" : ""}`}>
         <div className="ll-dropdown-inner">
+
+          {/* Info del usuario */}
           <div className="ll-user-info">
             <p className="ll-user-name">{usuario.nombre}</p>
             <p className="ll-user-email">{usuario.email}</p>
           </div>
+
           <div className="ll-dropdown-separator" />
+
+          {/* Gestión de usuarios — solo ADMIN */}
+          {usuario.rol === "ADMIN" ? (
+            <Link
+              to="/gestion-usuarios"
+              className="ll-dropdown-link"
+              onClick={() => setOpen(false)}
+            >
+              <span className="ll-link-index">01</span>
+              Gestión de usuarios
+            </Link>
+          ) : (
+            <button
+              className="ll-dropdown-link ll-dropdown-link--locked"
+              onClick={() => { setOpen(false); onDenied(); }}
+            >
+              <span className="ll-link-index">01</span>
+              Gestión de usuarios
+              <span className="ll-lock-icon">🔒</span>
+            </button>
+          )}
+
+          <div className="ll-dropdown-separator" />
+
+          {/* Cerrar sesión */}
           <button
             className="ll-dropdown-link ll-dropdown-link--danger"
             onClick={() => { logout(); navigate("/"); setOpen(false); }}
@@ -171,6 +193,7 @@ function UserMenu() {
             <span className="ll-link-index">→</span>
             Cerrar sesión
           </button>
+
         </div>
       </div>
     </div>
@@ -222,7 +245,7 @@ function Layout() {
                 onDenied={() => setToast(true)}
               />
             ))}
-            <UserMenu />
+            <UserMenu onDenied={() => setToast(true)} />
           </nav>
         </div>
       </header>
@@ -236,16 +259,16 @@ function Layout() {
 
       <Routes>
         <Route path="/"         element={<Home />} />
-        <Route path="/gestion-usuarios" element={
-          <PrivateRoute rolesPermitidos={["ADMIN"]}>
-            <GestionUsuarios />
-          </PrivateRoute>
-        } />
         <Route path="/sobre-mi" element={<SobreMi />} />
         <Route path="/login"    element={<Login />} />
         <Route path="/test1"    element={
-          <PrivateRoute rolesPermitidos={["ADMIN", "DEVELOPER", "VISITANTE"]}>
+          <PrivateRoute rolesPermitidos={["ADMIN", "DEVELOPER", "STANDARD"]}>
             <Test1 />
+          </PrivateRoute>
+        } />
+        <Route path="/gestion-usuarios" element={
+          <PrivateRoute rolesPermitidos={["ADMIN"]}>
+            <GestionUsuarios />
           </PrivateRoute>
         } />
       </Routes>
@@ -254,15 +277,25 @@ function Layout() {
 }
 
 function Home() {
+  const { usuario } = useAuth();
+
+  const primerNombre = usuario
+    ? usuario.nombre.split(" ")[0]
+    : "visitante";
+
+  const etiquetaRol = usuario
+    ? `// ${usuario.rol} USER`
+    : "// Sistema activo";
+
   return (
     <main className="ll-hero">
       <div className="ll-hero-grid" aria-hidden="true" />
       <div className="ll-hero-content">
-        <p className="ll-hero-eyebrow">// Sistema activo</p>
+        <p className="ll-hero-eyebrow">{etiquetaRol}</p>
         <h1 className="ll-hero-title">
           Bienvenido,
           <br />
-          <span className="ll-hero-accent">visitante</span>
+          <span className="ll-hero-accent">{primerNombre}</span>
         </h1>
         <div className="ll-hero-line" />
       </div>
