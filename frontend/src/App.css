@@ -1543,3 +1543,117 @@
   width: auto !important;
   min-width: 120px;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   Guía Rápida — Acordeón
+   ═══════════════════════════════════════════════════════════════ */
+
+.ll-acordeon-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ll-acordeon {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  overflow: hidden;
+  transition: border-color 0.2s ease;
+}
+
+.ll-acordeon--abierto {
+  border-color: var(--green);
+}
+
+.ll-acordeon-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s ease;
+}
+
+.ll-acordeon-header:hover {
+  background: rgba(74, 222, 128, 0.04);
+}
+
+.ll-acordeon-index {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--green);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.ll-acordeon-titulo {
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  flex: 1;
+}
+
+.ll-acordeon-chevron {
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.ll-acordeon-chevron.open {
+  transform: rotate(90deg);
+}
+
+.ll-acordeon-body {
+  padding: 0 1.25rem 1.25rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* ── Bloques de contenido ────────────────────────────────────── */
+.ll-guia-paso {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ll-guia-paso-titulo {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--green);
+  margin: 0;
+  padding-top: 1rem;
+}
+
+.ll-guia-texto {
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.ll-guia-code {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1rem 1.25rem;
+  overflow-x: auto;
+  margin: 0;
+}
+
+.ll-guia-code code {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--green);
+  white-space: pre;
+}

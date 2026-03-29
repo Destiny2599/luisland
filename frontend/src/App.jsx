@@ -2,11 +2,13 @@ import { useState, useEffect, useRef } from "react";
 import { BrowserRouter, Routes, Route, Link, useLocation, useNavigate } from "react-router-dom";
 import "./App.css";
 import { AuthProvider, useAuth } from "./context/AuthContext";
-import PrivateRoute from "./context/PrivateRoute";
-import Test1          from "./pages/Test1.jsx";
-import SobreMi        from "./pages/SobreMi.jsx";
-import Login          from "./pages/Login.jsx";
+import PrivateRoute    from "./context/PrivateRoute";
+import Test1           from "./pages/Test1.jsx";
+import SobreMi         from "./pages/SobreMi.jsx";
+import Login           from "./pages/Login.jsx";
 import GestionUsuarios from "./pages/GestionUsuarios.jsx";
+import SpringBoot      from "./pages/SpringBoot.jsx";
+import GuiaRapida     from "./pages/GuiaRapida.jsx";
 
 const NAV_ITEMS = [
   {
@@ -19,12 +21,12 @@ const NAV_ITEMS = [
     ],
   },
   {
-    label: "Herramientas",
+    label: "Utilidades",
     items: [
-      { label: "Opción 1", to: "/", roles: ["ADMIN", "DEVELOPER"] },
+      { label: "SpringBoot", to: "/springboot", roles: ["ADMIN", "DEVELOPER"] },
       { label: "Opción 2", to: "/", roles: ["ADMIN", "DEVELOPER"] },
       { label: "Opción 3", to: "/", roles: ["ADMIN", "DEVELOPER"] },
-      { label: "Opción 4", to: "/", roles: ["ADMIN", "DEVELOPER"] },
+      { label: "Guia rápida del Website", to: "/guia_rapida_del_website", roles: ["ADMIN", "DEVELOPER"] },
     ],
   },
   {
@@ -258,6 +260,7 @@ function Layout() {
       )}
 
       <Routes>
+
         <Route path="/"         element={<Home />} />
         <Route path="/sobre-mi" element={<SobreMi />} />
         <Route path="/login"    element={<Login />} />
@@ -271,6 +274,19 @@ function Layout() {
             <GestionUsuarios />
           </PrivateRoute>
         } />
+
+        <Route path="/springboot" element={
+          <PrivateRoute rolesPermitidos={["ADMIN", "DEVELOPER"]}>
+            <SpringBoot />
+          </PrivateRoute>
+        } />
+
+        <Route path="/guia_rapida_del_website" element={
+          <PrivateRoute rolesPermitidos={["ADMIN", "DEVELOPER"]}>
+            <GuiaRapida/>
+          </PrivateRoute>
+        } />
+
       </Routes>
     </div>
   );
