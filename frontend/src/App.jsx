@@ -10,6 +10,7 @@ import GestionUsuarios from "./pages/GestionUsuarios.jsx";
 import SpringBoot      from "./pages/SpringBoot.jsx";
 import GuiaRapida     from "./pages/GuiaRapida.jsx";
 
+
 const NAV_ITEMS = [
   {
     label: "Información",

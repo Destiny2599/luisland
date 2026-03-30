@@ -1,6 +1,7 @@
-import { useState } from "react";
+import Acordeon from "../components/Acordeon";
 
 const SECCIONES = [
+  //#1 Creacion de Pagina
   {
     titulo: "Crear y agregar página",
     contenido: [
@@ -43,145 +44,143 @@ const SECCIONES = [
       {
         tipo: "paso",
         titulo: "4. Agregar al menú",
-        texto: "En NAV_ITEMS busca el grupo donde quieres que aparezca (Información, Herramientas o Experimentos) y agrega la opción:",
+        texto: "En NAV_ITEMS busca el grupo donde quieres que aparezca y agrega la opción:",
         codigo: `{ label: "Mi Página", to: "/mi-pagina", roles: ["ADMIN", "DEVELOPER"] },`,
       },
       {
         tipo: "paso",
         titulo: "5. Subir a producción",
-        texto: "Guarda los cambios, haz commit y push. Vercel redesplegará automáticamente el frontend:",
+        texto: "Guarda los cambios, haz commit y push. Vercel redesplegará automáticamente:",
         codigo: `git add .
 git commit -m "feat: agregar MiPagina"
 git push`,
       },
     ],
   },
+  //#2 Uso de Acordeon}
+  {
+      titulo: "Reutilización de Componente Acordeón",
+      contenido: [
+        {
+          tipo: "paso",
+          titulo: "1. Ubicación del componente",
+          texto: "El componente Acordeon ya está creado y listo para usarse en cualquier página. Se encuentra en:",
+          codigo: `frontend/src/components/Acordeon.jsx`,
+        },
+        {
+          tipo: "paso",
+          titulo: "2. Importarlo en tu página",
+          texto: "Al inicio de tu página agrega el import:",
+          codigo: `import Acordeon from "../components/Acordeon";`,
+        },
+        {
+          tipo: "paso",
+          titulo: "3. Definir las secciones",
+          texto: "Crea un array SECCIONES con la información que quieres mostrar. Cada sección tiene un título y un array de bloques de contenido. Hay dos tipos de bloques:",
+          codigo: `const SECCIONES = [
+    {
+      titulo: "Mi primera sección",
+      contenido: [
+        // Tipo texto — solo muestra un párrafo
+        { tipo: "texto", texto: "Descripción de la sección." },
+  
+        // Tipo paso — muestra título, texto y bloque de código
+        {
+          tipo: "paso",
+          titulo: "Paso 1",
+          texto: "Descripción del paso.",
+          codigo: \`// Tu código aquí\`,
+        },
+      ],
+    },
+  ];`,
+      },
+      {
+        tipo: "paso",
+        titulo: "4. Usar el componente",
+        texto: "Dentro del JSX de tu página agrega el componente pasándole el array SECCIONES:",
+        codigo: `export default function MiPagina() {
+  return (
+    <main className="ll-hero ll-hero--top">
+      <div className="ll-hero-grid" aria-hidden="true" />
+      <div className="ll-scanline"  aria-hidden="true" />
+      <div className="ll-page-content">
+        <p className="ll-hero-eyebrow">// mi sección</p>
+        <h1 className="ll-page-title">
+          Mi <span className="ll-hero-accent">Página</span>
+        </h1>
+        <Acordeon secciones={SECCIONES} />
+      </div>
+    </main>
+  );
+}`,
+      },
+      {
+        tipo: "texto",
+        texto: "El componente maneja automáticamente el estado de apertura y cierre de cada sección. Solo necesitas preocuparte por el contenido.",
+      },
+    ],
+  },
+
+
+
   {
     titulo: "Estructura de carpetas",
     contenido: [
-      {
-        tipo: "texto",
-        texto: "Próximamente: guía de cómo está organizado el proyecto LuisLand.",
-      },
+      { tipo: "texto", texto: "Próximamente: guía de cómo está organizado el proyecto LuisLand." },
     ],
   },
   {
     titulo: "Sistema de roles",
     contenido: [
-      {
-        tipo: "texto",
-        texto: "Próximamente: explicación de los roles ADMIN, DEVELOPER y STANDARD.",
-      },
+      { tipo: "texto", texto: "Próximamente: explicación de los roles ADMIN, DEVELOPER y STANDARD." },
     ],
   },
   {
     titulo: "Estilos y variables CSS",
     contenido: [
-      {
-        tipo: "texto",
-        texto: "Próximamente: guía de variables CSS disponibles y clases reutilizables.",
-      },
+      { tipo: "texto", texto: "Próximamente: guía de variables CSS disponibles y clases reutilizables." },
     ],
   },
   {
     titulo: "Conectar con el backend",
     contenido: [
-      {
-        tipo: "texto",
-        texto: "Próximamente: cómo hacer peticiones autenticadas al backend desde el frontend.",
-      },
+      { tipo: "texto", texto: "Próximamente: cómo hacer peticiones autenticadas al backend desde el frontend." },
     ],
   },
   {
     titulo: "Crear endpoint en Spring Boot",
     contenido: [
-      {
-        tipo: "texto",
-        texto: "Próximamente: guía paso a paso para agregar un nuevo endpoint al backend.",
-      },
+      { tipo: "texto", texto: "Próximamente: guía paso a paso para agregar un nuevo endpoint al backend." },
     ],
   },
   {
     titulo: "Despliegue en producción",
     contenido: [
-      {
-        tipo: "texto",
-        texto: "Próximamente: cómo subir cambios a Railway (backend) y Vercel (frontend).",
-      },
+      { tipo: "texto", texto: "Próximamente: cómo subir cambios a Railway (backend) y Vercel (frontend)." },
     ],
   },
   {
     titulo: "Variables de entorno",
     contenido: [
-      {
-        tipo: "texto",
-        texto: "Próximamente: guía de variables de entorno en local y en producción.",
-      },
+      { tipo: "texto", texto: "Próximamente: guía de variables de entorno en local y en producción." },
     ],
   },
   {
     titulo: "MongoDB y Atlas",
     contenido: [
-      {
-        tipo: "texto",
-        texto: "Próximamente: cómo gestionar la base de datos en MongoDB Atlas.",
-      },
+      { tipo: "texto", texto: "Próximamente: cómo gestion ar la base de datos en MongoDB Atlas." },
     ],
   },
   {
     titulo: "Trabajar desde otro equipo",
     contenido: [
-      {
-        tipo: "texto",
-        texto: "Próximamente: checklist completo para configurar un equipo nuevo.",
-      },
+      { tipo: "texto", texto: "Próximamente: checklist completo para configurar un equipo nuevo." },
     ],
   },
 ];
 
-function Bloque({ bloque }) {
-  if (bloque.tipo === "texto") {
-    return (
-      <p className="ll-guia-texto">{bloque.texto}</p>
-    );
-  }
-
-  return (
-    <div className="ll-guia-paso">
-      <h3 className="ll-guia-paso-titulo">{bloque.titulo}</h3>
-      <p className="ll-guia-texto">{bloque.texto}</p>
-      {bloque.codigo && (
-        <pre className="ll-guia-code"><code>{bloque.codigo}</code></pre>
-      )}
-    </div>
-  );
-}
-
-function Acordeon({ seccion, index, abierto, onToggle }) {
-  return (
-    <div className={`ll-acordeon ${abierto ? "ll-acordeon--abierto" : ""}`}>
-      <button className="ll-acordeon-header" onClick={onToggle}>
-        <span className="ll-acordeon-index">{String(index + 1).padStart(2, "0")}</span>
-        <span className="ll-acordeon-titulo">{seccion.titulo}</span>
-        <span className={`ll-acordeon-chevron ${abierto ? "open" : ""}`}>›</span>
-      </button>
-
-      {abierto && (
-        <div className="ll-acordeon-body">
-          {seccion.contenido.map((bloque, i) => (
-            <Bloque key={i} bloque={bloque} />
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
 export default function GuiaRapida() {
-  const [abierto, setAbierto] = useState(null);
-
-  const toggle = (i) => setAbierto(abierto === i ? null : i);
-
   return (
     <main className="ll-hero ll-hero--top">
       <div className="ll-hero-grid" aria-hidden="true" />
@@ -197,17 +196,7 @@ export default function GuiaRapida() {
           </div>
         </div>
 
-        <div className="ll-acordeon-lista">
-          {SECCIONES.map((sec, i) => (
-            <Acordeon
-              key={i}
-              index={i}
-              seccion={sec}
-              abierto={abierto === i}
-              onToggle={() => toggle(i)}
-            />
-          ))}
-        </div>
+        <Acordeon secciones={SECCIONES} />
       </div>
     </main>
   );
