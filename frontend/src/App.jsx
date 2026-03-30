@@ -2,32 +2,31 @@ import { useState, useEffect, useRef } from "react";
 import { BrowserRouter, Routes, Route, Link, useLocation, useNavigate } from "react-router-dom";
 import "./App.css";
 import { AuthProvider, useAuth } from "./context/AuthContext";
-import PrivateRoute    from "./context/PrivateRoute";
-import Test1           from "./pages/Test1.jsx";
-import SobreMi         from "./pages/SobreMi.jsx";
-import Login           from "./pages/Login.jsx";
+import PrivateRoute from "./context/PrivateRoute";
+import Test1          from "./pages/Test1.jsx";
+import SobreMi        from "./pages/SobreMi.jsx";
+import Login          from "./pages/Login.jsx";
 import GestionUsuarios from "./pages/GestionUsuarios.jsx";
-import SpringBoot      from "./pages/SpringBoot.jsx";
 import GuiaRapida     from "./pages/GuiaRapida.jsx";
-
+import SpringBoot    from "./pages/SpringBoot.jsx";
 
 const NAV_ITEMS = [
   {
     label: "Información",
     items: [
-      { label: "Sobre mí",  to: "/sobre-mi", roles: null },
-      { label: "Opción 2",  to: "/",         roles: null },
-      { label: "Opción 3",  to: "/",         roles: null },
-      { label: "Opción 4",  to: "/",         roles: null },
+      { label: "Sobre mí",    to: "/sobre-mi",    roles: null },
+      
+      { label: "Opción 3",    to: "/",            roles: null },
+      { label: "Opción 4",    to: "/",            roles: null },
     ],
   },
   {
-    label: "Utilidades",
+    label: "Herramientas",
     items: [
+      { label: "Guía rápida", to: "/guia-rapida", roles: ["ADMIN", "DEVELOPER"] },
       { label: "SpringBoot", to: "/springboot", roles: ["ADMIN", "DEVELOPER"] },
-      { label: "Opción 2", to: "/", roles: ["ADMIN", "DEVELOPER"] },
       { label: "Opción 3", to: "/", roles: ["ADMIN", "DEVELOPER"] },
-      { label: "Guia rápida del Website", to: "/guia_rapida_del_website", roles: ["ADMIN", "DEVELOPER"] },
+      { label: "Opción 4", to: "/", roles: ["ADMIN", "DEVELOPER"] },
     ],
   },
   {
@@ -47,6 +46,7 @@ function tieneAcceso(usuario, roles) {
   return roles.includes(usuario.rol);
 }
 
+// ── Toast ─────────────────────────────────────────────────────────────────────
 function AccessToast({ mensaje, onClose }) {
   useEffect(() => {
     const t = setTimeout(onClose, 3000);
@@ -61,6 +61,7 @@ function AccessToast({ mensaje, onClose }) {
   );
 }
 
+// ── Dropdown desktop ──────────────────────────────────────────────────────────
 function DropdownMenu({ item, isOpen, onToggle, onClose, onDenied }) {
   const { usuario } = useAuth();
   const ref = useRef(null);
@@ -88,21 +89,14 @@ function DropdownMenu({ item, isOpen, onToggle, onClose, onDenied }) {
         <div className="ll-dropdown-inner">
           {item.items.map((opt, i) => {
             const acceso = tieneAcceso(usuario, opt.roles);
-
             if (acceso) {
               return (
-                <Link
-                  key={i}
-                  to={opt.to}
-                  className="ll-dropdown-link"
-                  onClick={onClose}
-                >
+                <Link key={i} to={opt.to} className="ll-dropdown-link" onClick={onClose}>
                   <span className="ll-link-index">0{i + 1}</span>
                   {opt.label}
                 </Link>
               );
             }
-
             return (
               <button
                 key={i}
@@ -121,6 +115,7 @@ function DropdownMenu({ item, isOpen, onToggle, onClose, onDenied }) {
   );
 }
 
+// ── User menu desktop ─────────────────────────────────────────────────────────
 function UserMenu({ onDenied }) {
   const { usuario, logout } = useAuth();
   const navigate = useNavigate();
@@ -156,22 +151,14 @@ function UserMenu({ onDenied }) {
 
       <div className={`ll-dropdown ll-dropdown--right ${open ? "visible" : ""}`}>
         <div className="ll-dropdown-inner">
-
-          {/* Info del usuario */}
           <div className="ll-user-info">
             <p className="ll-user-name">{usuario.nombre}</p>
             <p className="ll-user-email">{usuario.email}</p>
           </div>
-
           <div className="ll-dropdown-separator" />
 
-          {/* Gestión de usuarios — solo ADMIN */}
           {usuario.rol === "ADMIN" ? (
-            <Link
-              to="/gestion-usuarios"
-              className="ll-dropdown-link"
-              onClick={() => setOpen(false)}
-            >
+            <Link to="/gestion-usuarios" className="ll-dropdown-link" onClick={() => setOpen(false)}>
               <span className="ll-link-index">01</span>
               Gestión de usuarios
             </Link>
@@ -187,8 +174,6 @@ function UserMenu({ onDenied }) {
           )}
 
           <div className="ll-dropdown-separator" />
-
-          {/* Cerrar sesión */}
           <button
             className="ll-dropdown-link ll-dropdown-link--danger"
             onClick={() => { logout(); navigate("/"); setOpen(false); }}
@@ -196,17 +181,136 @@ function UserMenu({ onDenied }) {
             <span className="ll-link-index">→</span>
             Cerrar sesión
           </button>
-
         </div>
       </div>
     </div>
   );
 }
 
+// ── Menú móvil ────────────────────────────────────────────────────────────────
+function MobileMenu({ open, onClose, onDenied }) {
+  const { usuario, logout } = useAuth();
+  const navigate = useNavigate();
+  const [seccionAbierta, setSeccionAbierta] = useState(null);
+
+  // Cierra al cambiar de ruta
+  const location = useLocation();
+  useEffect(() => { onClose(); }, [location]);
+
+  const toggleSeccion = (i) => setSeccionAbierta(seccionAbierta === i ? null : i);
+
+  const handleNavegar = (to) => {
+    navigate(to);
+    onClose();
+  };
+
+  const handleDenied = () => {
+    onClose();
+    onDenied();
+  };
+
+  return (
+    <>
+      {/* Overlay */}
+      {open && <div className="ll-mobile-overlay" onClick={onClose} />}
+
+      {/* Panel */}
+      <div className={`ll-mobile-menu ${open ? "ll-mobile-menu--open" : ""}`}>
+
+        {/* Secciones de navegación */}
+        {NAV_ITEMS.map((item, i) => (
+          <div key={i} className="ll-mobile-section">
+            <button
+              className="ll-mobile-section-btn"
+              onClick={() => toggleSeccion(i)}
+            >
+              {item.label}
+              <span className={`ll-chevron ${seccionAbierta === i ? "open" : ""}`}>›</span>
+            </button>
+
+            {seccionAbierta === i && (
+              <div className="ll-mobile-section-items">
+                {item.items.map((opt, j) => {
+                  const acceso = tieneAcceso(usuario, opt.roles);
+                  if (acceso) {
+                    return (
+                      <button
+                        key={j}
+                        className="ll-mobile-link"
+                        onClick={() => handleNavegar(opt.to)}
+                      >
+                        <span className="ll-link-index">0{j + 1}</span>
+                        {opt.label}
+                      </button>
+                    );
+                  }
+                  return (
+                    <button
+                      key={j}
+                      className="ll-mobile-link ll-mobile-link--locked"
+                      onClick={handleDenied}
+                    >
+                      <span className="ll-link-index">0{j + 1}</span>
+                      {opt.label}
+                      <span className="ll-lock-icon">🔒</span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        ))}
+
+        <div className="ll-dropdown-separator" style={{ margin: "0.5rem 0" }} />
+
+        {/* Usuario */}
+        {usuario ? (
+          <>
+            <div className="ll-mobile-user-info">
+              <span className="ll-user-rol">{usuario.rol}</span>
+              <span className="ll-user-name">{usuario.nombre}</span>
+              <span className="ll-user-email">{usuario.email}</span>
+            </div>
+
+            <div className="ll-mobile-section-items">
+              {usuario.rol === "ADMIN" ? (
+                <button className="ll-mobile-link" onClick={() => handleNavegar("/gestion-usuarios")}>
+                  <span className="ll-link-index">01</span>
+                  Gestión de usuarios
+                </button>
+              ) : (
+                <button className="ll-mobile-link ll-mobile-link--locked" onClick={handleDenied}>
+                  <span className="ll-link-index">01</span>
+                  Gestión de usuarios
+                  <span className="ll-lock-icon">🔒</span>
+                </button>
+              )}
+              <button
+                className="ll-mobile-link ll-mobile-link--danger"
+                onClick={() => { logout(); navigate("/"); onClose(); }}
+              >
+                <span className="ll-link-index">→</span>
+                Cerrar sesión
+              </button>
+            </div>
+          </>
+        ) : (
+          <button className="ll-mobile-link" onClick={() => handleNavegar("/login")}>
+            <span className="ll-link-index">→</span>
+            Iniciar sesión
+          </button>
+        )}
+      </div>
+    </>
+  );
+}
+
+// ── Layout ────────────────────────────────────────────────────────────────────
 function Layout() {
-  const [openMenu, setOpenMenu] = useState(null);
-  const [scrolled, setScrolled] = useState(false);
-  const [toast, setToast] = useState(false);
+  const [openMenu, setOpenMenu]   = useState(null);
+  const [scrolled, setScrolled]   = useState(false);
+  const [toast, setToast]         = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const { usuario } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -237,7 +341,8 @@ function Layout() {
             <span className="ll-brand-bracket">]</span>
           </Link>
 
-          <nav className="ll-nav">
+          {/* Nav desktop */}
+          <nav className="ll-nav ll-nav--desktop">
             {NAV_ITEMS.map((item, i) => (
               <DropdownMenu
                 key={i}
@@ -250,8 +355,26 @@ function Layout() {
             ))}
             <UserMenu onDenied={() => setToast(true)} />
           </nav>
+
+          {/* Botón hamburguesa móvil */}
+          <button
+            className={`ll-hamburger ll-nav--mobile ${mobileOpen ? "ll-hamburger--open" : ""}`}
+            onClick={() => setMobileOpen(!mobileOpen)}
+            aria-label="Menú"
+          >
+            <span />
+            <span />
+            <span />
+          </button>
         </div>
       </header>
+
+      {/* Menú móvil */}
+      <MobileMenu
+        open={mobileOpen}
+        onClose={() => setMobileOpen(false)}
+        onDenied={() => setToast(true)}
+      />
 
       {toast && (
         <AccessToast
@@ -261,48 +384,47 @@ function Layout() {
       )}
 
       <Routes>
-
         <Route path="/"         element={<Home />} />
         <Route path="/sobre-mi" element={<SobreMi />} />
         <Route path="/login"    element={<Login />} />
+        <Route path="/guia-rapida"    element={
+                  <PrivateRoute rolesPermitidos={["ADMIN", "DEVELOPER"]}>
+                    <GuiaRapida />
+                  </PrivateRoute>
+                  
+                } />
+
+        <Route path="/springboot"    element={
+                  <PrivateRoute rolesPermitidos={["ADMIN", "DEVELOPER"]}>
+                    <SpringBoot />
+                  </PrivateRoute>
+                  
+                } />
+
+
+
         <Route path="/test1"    element={
           <PrivateRoute rolesPermitidos={["ADMIN", "DEVELOPER", "STANDARD"]}>
             <Test1 />
           </PrivateRoute>
+          
         } />
         <Route path="/gestion-usuarios" element={
           <PrivateRoute rolesPermitidos={["ADMIN"]}>
             <GestionUsuarios />
           </PrivateRoute>
         } />
-
-        <Route path="/springboot" element={
-          <PrivateRoute rolesPermitidos={["ADMIN", "DEVELOPER"]}>
-            <SpringBoot />
-          </PrivateRoute>
-        } />
-
-        <Route path="/guia_rapida_del_website" element={
-          <PrivateRoute rolesPermitidos={["ADMIN", "DEVELOPER"]}>
-            <GuiaRapida/>
-          </PrivateRoute>
-        } />
-
       </Routes>
     </div>
   );
 }
 
+// ── Home ──────────────────────────────────────────────────────────────────────
 function Home() {
   const { usuario } = useAuth();
 
-  const primerNombre = usuario
-    ? usuario.nombre.split(" ")[0]
-    : "visitante";
-
-  const etiquetaRol = usuario
-    ? `// ${usuario.rol} USER`
-    : "// Sistema activo";
+  const primerNombre = usuario ? usuario.nombre.split(" ")[0] : "visitante";
+  const etiquetaRol  = usuario ? `// Usuario (${usuario.rol})` : "// Sistema activo";
 
   return (
     <main className="ll-hero">

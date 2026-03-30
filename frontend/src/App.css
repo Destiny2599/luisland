@@ -1657,3 +1657,195 @@
   color: var(--green);
   white-space: pre;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   RESPONSIVE — Menú hamburguesa
+   Pegar al final de App.css
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Mostrar/ocultar según pantalla ─────────────────────────── */
+.ll-nav--desktop { display: flex; }
+.ll-nav--mobile  { display: none; }
+
+@media (max-width: 900px) {
+  .ll-nav--desktop { display: none; }
+  .ll-nav--mobile  { display: flex; }
+}
+
+/* ── Botón hamburguesa ───────────────────────────────────────── */
+.ll-hamburger {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  padding: 8px;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.ll-hamburger:hover {
+  border-color: var(--green);
+  background: var(--green-glow);
+}
+
+.ll-hamburger span {
+  display: block;
+  width: 100%;
+  height: 1.5px;
+  background: var(--text-muted);
+  border-radius: 2px;
+  transition: transform 0.25s ease, opacity 0.25s ease, background 0.2s;
+  transform-origin: center;
+}
+
+.ll-hamburger:hover span { background: var(--green); }
+
+/* Animación X al abrir */
+.ll-hamburger--open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+.ll-hamburger--open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.ll-hamburger--open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+/* ── Overlay ─────────────────────────────────────────────────── */
+.ll-mobile-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+  z-index: 998;
+  animation: ll-fade-in 0.2s ease;
+}
+
+/* ── Panel móvil ─────────────────────────────────────────────── */
+.ll-mobile-menu {
+  position: fixed;
+  top: var(--nav-height);
+  left: 0;
+  right: 0;
+  background: rgba(10, 10, 10, 0.98);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  z-index: 999;
+  padding: 0.75rem 1rem 1.25rem;
+  max-height: calc(100vh - var(--nav-height));
+  overflow-y: auto;
+
+  /* Estado cerrado */
+  opacity: 0;
+  transform: translateY(-8px);
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.25s ease;
+}
+
+.ll-mobile-menu--open {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* ── Secciones del menú móvil ────────────────────────────────── */
+.ll-mobile-section {
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.ll-mobile-section:last-of-type {
+  border-bottom: none;
+}
+
+.ll-mobile-section-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 0.5rem;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.ll-mobile-section-btn:hover { color: var(--green); }
+
+.ll-mobile-section-items {
+  padding: 0 0 0.5rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* ── Links del menú móvil ────────────────────────────────────── */
+.ll-mobile-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0.6rem 0.75rem;
+  border-radius: 5px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+  text-align: left;
+  width: 100%;
+}
+
+.ll-mobile-link:hover {
+  color: var(--green);
+  background: var(--green-glow);
+}
+
+.ll-mobile-link--locked {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.ll-mobile-link--locked:hover {
+  color: var(--text-muted);
+  background: none;
+}
+
+.ll-mobile-link--danger {
+  color: #f87171;
+}
+
+.ll-mobile-link--danger:hover {
+  color: #f87171;
+  background: rgba(248, 113, 113, 0.08);
+}
+
+/* ── Info de usuario en móvil ────────────────────────────────── */
+.ll-mobile-user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0.75rem 0.5rem 0.5rem;
+}
+
+.ll-mobile-user-info .ll-user-rol {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--green);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.ll-mobile-user-info .ll-user-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.ll-mobile-user-info .ll-user-email {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
