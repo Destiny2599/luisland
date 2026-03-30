@@ -1665,13 +1665,12 @@
 
 /* ── Mostrar/ocultar según pantalla ─────────────────────────── */
 .ll-nav--desktop { display: flex; }
-.ll-nav--mobile  { display: none; }
+.ll-nav--mobile  { display: none !important; }
 
 @media (max-width: 900px) {
-  .ll-nav--desktop { display: none; }
-  .ll-nav--mobile  { display: flex; }
+  .ll-nav--desktop { display: none !important; }
+  .ll-nav--mobile  { display: flex !important; }
 }
-
 /* ── Botón hamburguesa ───────────────────────────────────────── */
 .ll-hamburger {
   display: flex;
