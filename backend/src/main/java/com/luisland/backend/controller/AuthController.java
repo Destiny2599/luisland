@@ -69,7 +69,7 @@ public class AuthController {
                     .body(Map.of("error", "El email ya está registrado"));
         }
 
-        Rol rol;
+       Rol rol;
         try {
             rol = Rol.valueOf(rolStr.toUpperCase());
         } catch (Exception e) {
