@@ -20,6 +20,8 @@ import java.util.List;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    
+
     private final JwtFilter jwtFilter;
 
     public SecurityConfig(JwtFilter jwtFilter) {
@@ -43,6 +45,8 @@ public class SecurityConfig {
 
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/bienvenido").permitAll()
+
+                .requestMatchers("/api/productos/**").permitAll()
 
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/developer/**").hasAnyRole("ADMIN", "DEVELOPER")
