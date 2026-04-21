@@ -9,6 +9,8 @@ import Login          from "./pages/Login.jsx";
 import GestionUsuarios from "./pages/GestionUsuarios.jsx";
 import GuiaRapida     from "./pages/GuiaRapida.jsx";
 import SpringBoot    from "./pages/SpringBoot.jsx";
+import Inventario from "./pages/Inventario.jsx";
+
 
 const NAV_ITEMS = [
   {
@@ -25,6 +27,7 @@ const NAV_ITEMS = [
     items: [
       { label: "Guía rápida", to: "/guia-rapida", roles: ["ADMIN", "DEVELOPER"] },
       { label: "SpringBoot", to: "/springboot", roles: ["ADMIN", "DEVELOPER"] },
+      { label: "Inventario", to: "/inventario", roles: ["ADMIN", "DEVELOPER"] },
       { label: "Opción 3", to: "/", roles: ["ADMIN", "DEVELOPER"] },
       { label: "Opción 4", to: "/", roles: ["ADMIN", "DEVELOPER"] },
     ],
@@ -400,6 +403,12 @@ function Layout() {
                   </PrivateRoute>
                   
                 } />
+
+        <Route path="/inventario" element={
+                <PrivateRoute rolesPermitidos={["ADMIN", "DEVELOPER"]}>
+                  <Inventario />
+                </PrivateRoute>
+              } />
 
 
 
