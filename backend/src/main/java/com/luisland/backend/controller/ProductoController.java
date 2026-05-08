@@ -3,7 +3,9 @@ package com.luisland.backend.controller;
 import com.luisland.backend.model.Producto;
 import com.luisland.backend.service.ProductoService;
 
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
@@ -31,13 +33,13 @@ public class ProductoController {
 
     // POST /api/productos
     @PostMapping
-    public Producto create(@RequestBody Producto producto) {
+    public Producto create(@RequestBody @Validated Producto producto) {
         return service.create(producto);
     }
 
     // PUT /api/productos/{id}
     @PutMapping("/{id}")
-    public Producto update(@PathVariable Long id, @RequestBody Producto producto) {
+    public Producto update(@PathVariable Long id, @RequestBody @Validated Producto producto) {
         return service.update(id, producto);
     }
 

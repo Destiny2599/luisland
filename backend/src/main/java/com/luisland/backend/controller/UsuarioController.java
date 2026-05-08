@@ -1,13 +1,18 @@
 package com.luisland.backend.controller;
 
+import com.luisland.backend.dto.CambiarInfoRequest;
+import com.luisland.backend.dto.CambiarRolRequest;
+import com.luisland.backend.dto.RegistroRequest;
 import com.luisland.backend.model.Rol;
 import com.luisland.backend.model.Usuario;
 import com.luisland.backend.repository.UsuarioRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -27,50 +32,44 @@ public class UsuarioController {
 
     // ── GET /api/admin/usuarios ─────────────────────────────────────
     @GetMapping
-public ResponseEntity<List<Map<String, Object>>> listar() {
-    List<Map<String, Object>> lista = usuarioRepo.findAll().stream()
-            .map(u -> {
-                Map<String, Object> map = new java.util.HashMap<>();
-                map.put("id",       u.getId());
-                map.put("nombre",   u.getNombre());
-                map.put("email",    u.getEmail());
-                map.put("rol",      u.getRol().name());
-                map.put("esMaster", u.isEsMaster());
-                return map;
-            })
-            .toList();
+    public ResponseEntity<List<Map<String, Object>>> listar() {
+        List<Map<String, Object>> lista = usuarioRepo.findAll().stream()
+                .map(u -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("id",       u.getId());
+                    map.put("nombre",   u.getNombre());
+                    map.put("email",    u.getEmail());
+                    map.put("rol",      u.getRol().name());
+                    map.put("esMaster", u.isEsMaster());
+                    return map;
+                })
+                .toList();
 
-    return ResponseEntity.ok(lista);
-}
+        return ResponseEntity.ok(lista);
+    }
 
     // ── POST /api/admin/usuarios ────────────────────────────────────
     @PostMapping
-    public ResponseEntity<?> crear(@RequestBody Map<String, String> body) {
-        String email    = body.get("email");
-        String password = body.get("password");
-        String nombre   = body.get("nombre");
-        String rolStr   = body.get("rol");
+    public ResponseEntity<?> crear(@RequestBody @Validated RegistroRequest request) {
 
-        if (email == null || email.isBlank() ||
-            password == null || password.isBlank() ||
-            nombre == null || nombre.isBlank()) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("error", "Nombre, email y password son obligatorios"));
-        }
-
-        if (usuarioRepo.existsByEmail(email)) {
+        if (usuarioRepo.existsByEmail(request.getEmail())) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(Map.of("error", "El email ya está registrado"));
         }
 
         Rol rol;
         try {
-            rol = Rol.valueOf(rolStr.toUpperCase());
+            rol = Rol.valueOf(request.getRol().toUpperCase());
         } catch (Exception e) {
             rol = Rol.VISITANTE;
         }
 
-        Usuario nuevo = new Usuario(nombre, email, passwordEncoder.encode(password), rol);
+        Usuario nuevo = new Usuario(
+                request.getNombre(),
+                request.getEmail(),
+                passwordEncoder.encode(request.getPassword()),
+                rol
+        );
         usuarioRepo.save(nuevo);
 
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -87,7 +86,6 @@ public ResponseEntity<List<Map<String, Object>>> listar() {
                     .body(Map.of("error", "Usuario no encontrado"));
         }
 
-        // Protección Master — nunca se puede eliminar
         if (opt.get().isEsMaster()) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(Map.of("error", "El usuario Master no puede ser eliminado"));
@@ -100,7 +98,7 @@ public ResponseEntity<List<Map<String, Object>>> listar() {
     // ── PUT /api/admin/usuarios/{id}/rol ───────────────────────────
     @PutMapping("/{id}/rol")
     public ResponseEntity<?> cambiarRol(@PathVariable String id,
-                                        @RequestBody Map<String, String> body) {
+                                        @RequestBody @Validated CambiarRolRequest request) {
         Optional<Usuario> opt = usuarioRepo.findById(id);
 
         if (opt.isEmpty()) {
@@ -108,7 +106,6 @@ public ResponseEntity<List<Map<String, Object>>> listar() {
                     .body(Map.of("error", "Usuario no encontrado"));
         }
 
-        // Protección Master — nunca se puede degradar
         if (opt.get().isEsMaster()) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(Map.of("error", "El rol del usuario Master no puede ser modificado"));
@@ -116,7 +113,7 @@ public ResponseEntity<List<Map<String, Object>>> listar() {
 
         Rol nuevoRol;
         try {
-            nuevoRol = Rol.valueOf(body.get("rol").toUpperCase());
+            nuevoRol = Rol.valueOf(request.getRol().toUpperCase());
         } catch (Exception e) {
             return ResponseEntity.badRequest()
                     .body(Map.of("error", "Rol inválido. Usa: ADMIN, DEVELOPER o VISITANTE"));
@@ -129,10 +126,10 @@ public ResponseEntity<List<Map<String, Object>>> listar() {
         return ResponseEntity.ok(Map.of("mensaje", "Rol actualizado correctamente"));
     }
 
-        // ── PUT /api/admin/usuarios/{id}/info ──────────────────────────
+    // ── PUT /api/admin/usuarios/{id}/info ──────────────────────────
     @PutMapping("/{id}/info")
     public ResponseEntity<?> cambiarInfo(@PathVariable String id,
-                                        @RequestBody Map<String, String> body) {
+                                         @RequestBody @Validated CambiarInfoRequest request) {
         Optional<Usuario> opt = usuarioRepo.findById(id);
 
         if (opt.isEmpty()) {
@@ -147,19 +144,17 @@ public ResponseEntity<List<Map<String, Object>>> listar() {
 
         Usuario usuario = opt.get();
 
-        String nuevoNombre = body.get("nombre");
-        String nuevoEmail  = body.get("email");
-
-        if (nuevoNombre != null && !nuevoNombre.isBlank()) {
-            usuario.setNombre(nuevoNombre);
+        if (request.getNombre() != null && !request.getNombre().isBlank()) {
+            usuario.setNombre(request.getNombre());
         }
 
-        if (nuevoEmail != null && !nuevoEmail.isBlank()) {
-            if (!nuevoEmail.equals(usuario.getEmail()) && usuarioRepo.existsByEmail(nuevoEmail)) {
+        if (request.getEmail() != null && !request.getEmail().isBlank()) {
+            if (!request.getEmail().equals(usuario.getEmail()) &&
+                    usuarioRepo.existsByEmail(request.getEmail())) {
                 return ResponseEntity.status(HttpStatus.CONFLICT)
                         .body(Map.of("error", "El email ya está registrado"));
             }
-            usuario.setEmail(nuevoEmail);
+            usuario.setEmail(request.getEmail());
         }
 
         usuarioRepo.save(usuario);
