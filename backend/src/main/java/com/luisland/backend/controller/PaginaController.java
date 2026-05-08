@@ -1,9 +1,11 @@
 package com.luisland.backend.controller;
 
+import com.luisland.backend.dto.ActualizarPermisoRequest;
 import com.luisland.backend.model.Pagina;
 import com.luisland.backend.repository.PaginaRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -48,7 +50,6 @@ public class PaginaController {
     @PostMapping("/inicializar")
     public ResponseEntity<?> inicializar() {
         List<Pagina> defaults = List.of(
-        
             new Pagina("Sobre mí",            "/sobre-mi",          "TODOS"),
             new Pagina("Test 1",              "/test1",             "STANDARD"),
             new Pagina("Gestión de usuarios", "/gestion-usuarios",  "ADMIN"),
@@ -72,7 +73,7 @@ public class PaginaController {
     // ── PUT /api/admin/paginas/{id}/permiso ─────────────────────
     @PutMapping("/{id}/permiso")
     public ResponseEntity<?> actualizarPermiso(@PathVariable String id,
-                                               @RequestBody Map<String, String> body) {
+                                               @RequestBody @Validated ActualizarPermisoRequest request) {
         Optional<Pagina> opt = paginaRepo.findById(id);
 
         if (opt.isEmpty()) {
@@ -80,16 +81,15 @@ public class PaginaController {
                     .body(Map.of("error", "Página no encontrada"));
         }
 
-        String nuevoPermiso = body.get("permiso");
         List<String> validos = List.of("TODOS", "STANDARD", "DEVELOPER", "ADMIN");
 
-        if (nuevoPermiso == null || !validos.contains(nuevoPermiso.toUpperCase())) {
+        if (!validos.contains(request.getPermiso().toUpperCase())) {
             return ResponseEntity.badRequest()
                     .body(Map.of("error", "Permiso inválido. Usa: TODOS, STANDARD, DEVELOPER o ADMIN"));
         }
 
         Pagina pagina = opt.get();
-        pagina.setPermiso(nuevoPermiso.toUpperCase());
+        pagina.setPermiso(request.getPermiso().toUpperCase());
         paginaRepo.save(pagina);
 
         return ResponseEntity.ok(Map.of("mensaje", "Permiso actualizado correctamente"));
