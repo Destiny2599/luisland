@@ -1,6 +1,6 @@
 package com.luisland.backend.repository;
  
-import com.luisland.backend.model.Usuario;
+import com.luisland.backend.entities.Usuario;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import java.util.Optional;
  

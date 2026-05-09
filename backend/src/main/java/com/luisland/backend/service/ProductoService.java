@@ -1,9 +1,10 @@
 package com.luisland.backend.service;
 
-import com.luisland.backend.model.Producto;
+import com.luisland.backend.entities.Producto;
 import com.luisland.backend.repository.ProductoRepository;
-
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -16,26 +17,24 @@ public class ProductoService {
         this.repo = repo;
     }
 
-    // Obtener todos
     public List<Producto> getAll() {
         return repo.findAll();
     }
 
-    // Obtener por ID
     public Producto getById(Long id) {
         return repo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Producto no encontrado"));
     }
 
-    // Crear
     public Producto create(Producto producto) {
         return repo.save(producto);
     }
 
-    // Actualizar
     public Producto update(Long id, Producto data) {
         Producto producto = repo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Producto no encontrado"));
 
         producto.setNombre(data.getNombre());
         producto.setDescripcion(data.getDescripcion());
@@ -46,10 +45,9 @@ public class ProductoService {
         return repo.save(producto);
     }
 
-    // Eliminar
     public void delete(Long id) {
         if (!repo.existsById(id)) {
-            throw new RuntimeException("Producto no encontrado");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Producto no encontrado");
         }
         repo.deleteById(id);
     }

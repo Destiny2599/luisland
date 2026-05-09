@@ -1,4 +1,4 @@
-package com.luisland.backend.model;
+package com.luisland.backend.entities;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
